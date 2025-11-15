@@ -24,8 +24,6 @@ public class Lexer {
             char c = source.charAt(position);
             column++;
 
-            // System.out.println("Letra atual: " + c);
-
             if (Character.isWhitespace(c)) {
                 position++;
 
@@ -41,11 +39,10 @@ public class Lexer {
                 s.append(c);
 
                 while (hasNext()) {
-                    // System.out.println("No is letter e has next");
                     position++;
-                    char demais = source.charAt(position);
+                    char demaisChars = source.charAt(position);
 
-                    s.append(demais);
+                    s.append(demaisChars);
                 }
 
                 String value = s.toString();
@@ -69,6 +66,34 @@ public class Lexer {
                         break;
                     }
 
+                    case "public" -> {
+                        tokens.add(new Token(TokenType.MODIFIER, value));
+
+                        position++;
+                        break;
+                    }
+
+                    case "protected" -> {
+                        tokens.add(new Token(TokenType.MODIFIER, value));
+
+                        position++;
+                        break;
+                    }
+
+                    case "private" -> {
+                        tokens.add(new Token(TokenType.MODIFIER, value));
+
+                        position++;
+                        break;
+                    }
+
+                    case "return" -> {
+                        tokens.add(new Token(TokenType.RETURN));
+
+                        position++;
+                        break;
+                    }
+
                     default -> {
                         tokens.add(new Token(TokenType.IDENTIFIER, value));
 
@@ -83,7 +108,6 @@ public class Lexer {
             }
 
             if (isDigit(c)) {
-                // System.out.println("No is digit e has next");
 
                 s.append(c);
 
@@ -105,68 +129,114 @@ public class Lexer {
             }
 
             switch (c) {
+                case ',' -> {
+                    tokens.add(new Token(TokenType.SEPARATOR));
+
+                    position++;
+                    break;
+                }
+
                 case '=' -> {
-                    tokens.add(new Token(TokenType.ASSIGNMENT, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.ASSIGNMENT));
 
                     position++;
                     break;
                 }
 
                 case '+' -> {
-                    tokens.add(new Token(TokenType.PLUS, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.PLUS));
 
                     position++;
                     break;
                 }
 
                 case '-' -> {
-                    tokens.add(new Token(TokenType.MINUS, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.MINUS));
 
                     position++;
                     break;
                 }
 
                 case '*' -> {
-                    tokens.add(new Token(TokenType.MULTIPLY, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.MULTIPLY));
 
                     position++;
                     break;
                 }
 
                 case '/' -> {
-                    tokens.add(new Token(TokenType.DIVISION, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.DIVISION));
 
                     position++;
                     break;
                 }
 
                 case '%' -> {
-                    tokens.add(new Token(TokenType.REMAINDER, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.REMAINDER));
 
                     position++;
                     break;
                 }
 
                 case ';' -> {
-                    tokens.add(new Token(TokenType.SEMICOLON, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.SEMICOLON));
                     position++;
 
                     break;
                 }
 
                 case '(' -> {
-                    tokens.add(new Token(TokenType.LPAREN, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.LPAREN));
                     position++;
 
                     break;
                 }
 
                 case ')' -> {
-                    tokens.add(new Token(TokenType.RPAREN, String.valueOf(c)));
+                    tokens.add(new Token(TokenType.RPAREN));
                     position++;
 
                     break;
                 }
+
+                case '{' -> {
+                    tokens.add(new Token(TokenType.LBRACE));
+                    position++;
+
+                    break;
+                }
+
+                case '}' -> {
+                    tokens.add(new Token(TokenType.RBRACE));
+                    position++;
+
+                    break;
+                }
+
+                case '[' -> {
+                    tokens.add(new Token(TokenType.LBRACKET));
+                    position++;
+
+                    break;
+                }
+
+                case ']' -> {
+                    tokens.add(new Token(TokenType.RBRACKET));
+                    position++;
+
+                    break;
+                }
+
+                /*
+                 * --- base ---
+                 * 
+                 * case '' -> {
+                 * tokens.add(new Token(TokenType.));
+                 * position++;
+                 * 
+                 * break;
+                 * }
+                 */
 
                 default -> {
                     Span span = new Span(filePath, line, column, line, column + 1);
@@ -213,8 +283,6 @@ public class Lexer {
             }
         }
 
-        // System.out.println("No is digit");
-
         return is;
     }
 
@@ -231,12 +299,20 @@ public class Lexer {
 
         char c = source.charAt(position + 1);
 
-        return isLetter(c) || isDigit(c) || isAlgo(c);
+        return isLetter(c) || isDigit(c);
     }
 
-    private boolean isAlgo(char c) {
-        return c == '(' || c == ')' || c == '\'' || c == '\"';
-    }
+    /*
+     * 
+     * private boolean isSeparator(char c) {
+     * return c == ',';
+     * }
+     * 
+     * 
+     * private boolean isDelimiter(char c) {
+     * return c == '(' || c == ')' || c == '\'' || c == '\"';
+     * }
+     */
 
     private boolean EOF() {
         if (position >= source.length()) {

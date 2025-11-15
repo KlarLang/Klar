@@ -1,4 +1,3 @@
-integer x = 10;
-integer y = 0;
-
-integer result = x * y;
+public integer somar(integer n1, integer n2){
+    return n1 + n2;
+}
