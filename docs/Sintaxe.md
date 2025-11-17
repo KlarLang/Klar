@@ -1,307 +1,255 @@
-# Klang — Linguagem Poliglota (v1.0.0, Draft)
+# Klang Language Specification (v1.0.0 — Draft)
 
-> “Code once, speak many.” — *Klang Core Team*
+Klang is a statically-typed, minimal and deterministic language designed for
+modular transpilation across multiple backends (Java, C, Python, Go, Rust).
 
----
-
-## 🧠 Visão Geral
-
-**Klang (K)** é uma linguagem poliglota cujo objetivo é **aproveitar o melhor de cada linguagem existente** por meio de **transpilação seletiva**.  
-A versão **1.0.0** foca em três pilares:
-
-- **Estabilidade da sintaxe**
-- **Tipagem estática opcional (Java-like)**
-- **Transpilação modular com @Use**
-
-> **Filosofia:** cada arquivo ou função pode “falar” a linguagem mais eficiente para o seu propósito — sem perder legibilidade, interoperabilidade ou coesão.
+This document defines the **syntax**, **lexical rules** and the **core language constructs**.
+It does not define standard library behavior or backend-specific semantics.
 
 ---
 
-## ⚙️ Princípios (v1.0.0)
+## 1. Lexical Structure
 
-- Sintaxe legível e familiar (inspirada em **Java** e **Python**)
-- Semântica determinística
-- Transpilação controlada por `@Use`
-- Biblioteca padrão mínima (I/O, Math, Collections, Input)
-- Filosofia **"o essencial primeiro"**
+### 1.1 Tokens
+- Identifiers: `[A-Za-z_][A-Za-z0-9_]*`
+- Literals:
+  - integer: `10`, `42`
+  - double: `3.14`
+  - char: `'a'`
+  - string: `"text"`
+  - boolean: `true`, `false`
 
----
+### 1.2 Comments
+- Single-line: `// comment`
+- Block: `/* comment */`
 
-## 📘 Sumário
-
-1. [Layout Léxico](#-layout-léxico)  
-2. [Tipos](#-tipos)  
-3. [Declaração de Variáveis](#-declaração-de-variáveis)  
-4. [Operadores Aritméticos](#-operadores-aritméticos)  
-5. [Operadores Lógicos e Comparações](#-operadores-lógicos-e-comparações)  
-6. [I/O (Prints)](#-io-e-print)  
-7. [Funções / Métodos](#-funções--métodos)  
-8. [Anotação @Use](#-anotação-use)  
-9. [Estruturas de Controle](#-estruturas-de-controle)  
-10. [Coleções](#-coleções)  
-11. [Input (Console)](#-input-console)  
-12. [Biblioteca Math](#-biblioteca-math)  
-13. [Erros e Exceções](#-erros-e-exceções)  
-14. [Convenções e Boas Práticas](#-convenções-e-boas-práticas)  
-15. [Exemplo Completo](#-exemplo-completo)  
-16. [Mudanças Rápidas](#-mudanças-rápidas)
+### 1.3 Blocks and Terminators
+- Statements end with `;`
+- Blocks are delimited by `{ ... }`
 
 ---
 
-## 🧩 Layout Léxico
+## 2. Types
 
-- **Terminador:** `;` (obrigatório em declarações e expressões)  
-- **Blocos:** `{ ... }`  
-- **Comentários:**  
-  - Linha: `// comentário`  
-  - Bloco: `/* comentário */`  
-- **Strings:** `"texto"` (suporta `\n`, `\"`, `\\`)  
-- **Character:** `'a'` ou `'\uXXXX'`  
-- **Identificadores:** `[A-Za-z_][A-Za-z0-9_]*`
+### 2.1 Primitive Types
+```
 
----
+integer
+double
+character
+boolean
 
-## 🔢 Tipos
+```
 
-**Primitivos:**  
-`integer`, `double`, `character`, `boolean`
+### 2.2 Reference Types
+```
 
-**Referência / Não-primitivos:**  
-`String`, `Array<T>`, `Map<K,V>`, `Set<T>`  
-e wrappers `Integer`, `Double`, `Character`, `Boolean` (nullable)
+String
+Array<T>
+Map<K,V>
+Set<T>
 
-Exemplo:
-```k
-integer i = 10;
-String nome = "Klang";
-Array<Integer> lista = new Array(10);
+```
 
+Primitives do not accept null. Reference types may accept null.
 
 ---
 
-💬 Declaração de Variáveis
+## 3. Variable Declarations
+
+```
 
 integer x = 10;
 double y = 3.14;
-String nome = "Klang";
-Array<Integer> lista = new Array();
+String name = "Klang";
+Array<Integer> list = new Array();
 
+```
 
----
-
-➕ Operadores Aritméticos
-
-+ - * / % **
-
-> ** é açúcar sintático para Math.pow(a, b)
-
-
-
-integer a = 5;
-integer b = 2;
-double p = a ** b; // 25.0
-
+Type must be explicit.
 
 ---
 
-🧮 Operadores Lógicos e Comparações
+## 4. Operators
 
-Comparações: >, <, >=, <=, ==, !=
-Lógicos: !, &&, ||
-Aliases opcionais: and, or
+### 4.1 Arithmetic
+```
 
++  -  *  /  %  **
 
----
+```
 
-🖨️ I/O e Print
+`**` is syntactic sugar for exponentiation.
 
-print("texto");       // sem quebra de linha
-println("texto");     // com \n
-print("olá", end=" fim\n");
+### 4.2 Comparison
+```
 
-> end="..." é suportado apenas em funções core (print, println).
+> <  >=  <=  ==  !=
 
+```
 
+### 4.3 Boolean
+```
 
+!  &&  ||
 
----
-
-🧱 Funções / Métodos
-
-public static integer somar(integer a, integer b){
-    return a + b;
-}
-
-public, private, static seguem semântica Java.
-
-Tipagem explícita obrigatória.
-
-
+```
 
 ---
 
-🏷️ Anotação @Use
+## 5. Control Flow
 
-Controla qual linguagem alvo será usada na transpilação.
+### 5.1 Conditional
 
-@Use("java")
-public static integer somar(integer a, integer b){ ... }
+```
 
-@Use("c")
-public static void main(){ ... }
-
-> Escopo: arquivo ou método.
-Default global: "java".
-
-
-
-
----
-
-🔀 Estruturas de Controle
-
-if (x > 0){
-    println("positivo");
-} otherwise (x == 0){
-    println("zero");
+if (x > 0) {
+    println("Positive");
+} otherwise (x == 0) {
+    println("Zero");
 } afterall {
-    println("negativo");
+    println("Negative");
 }
 
-otherwise → alias de else if
-afterall → substitui else
+```
 
-Loops:
+- `otherwise` → else-if  
+- `afterall` → final else branch
 
-for (integer i = 0; i < n; i++){
+### 5.2 Loops
+
+Index loop:
+```
+
+for (integer i = 0; i < n; i++) {
     println(i);
 }
 
-for (integer numero -> numeros){
-    println(numero);
+```
+
+Iterator loop:
+```
+
+for (integer value -> numbers) {
+    println(value);
 }
 
+```
 
 ---
 
-🧰 Coleções
+## 6. Functions
 
-Array<T>
+```
 
-Array<Integer> numeros = {1, 2, 3};
-numeros.append(4);
-println(numeros.get(0));
-
-Map<K,V>
-
-Map<String,Integer> idades = new Map();
-idades.put("K", 25);
-
-Set<T>
-
-Set<String> nomes = new Set();
-nomes.add("Klang");
-
-
----
-
-⌨️ Input (Console)
-
-String nome = Input.askNextLine();
-integer idade = Input.askNextInteger();
-
-Validações úteis:
-
-String.isEmpty()
-
-Integer.isDigit(str)
-
-Integer.isPositive(n)
-
-
-
----
-
-📐 Biblioteca Math
-
-Math.pow(a, b);
-Math.sin(x);
-Math.sqrt(x);
-
-** → açúcar sintático de Math.pow.
-
-
----
-
-⚠️ Erros e Exceções
-
-try {
-    // ...
-} catch (Exception e) {
-    println("Erro: " + e);
+public static integer sum(integer a, integer b) {
+    return a + b;
 }
 
-> Exceções customizadas virão em versões futuras.
+```
 
-
-
-
----
-
-🧭 Convenções e Boas Práticas
-
-Declare @Use sempre que usar APIs específicas de outro target.
-
-Prefira Math.pow à ** para compatibilidade.
-
-Use afterall em vez de else.
-
-Use i < n em loops indexados.
-
-Documente seus métodos e linguagens de destino.
-
-
+- Access modifiers follow Java semantics.
+- Static functions belong to the module.
+- Return type must be explicit.
 
 ---
 
-💡 Exemplo Completo
+## 7. @Use Annotation
+
+`@Use(target)` defines the backend for transpilation.
+
+Examples:
+
+```
+
+@Use("java")
+public static integer sum(integer a, integer b) { ... }
 
 @Use("c")
-public static Array<Integer> generateArrayTo(integer n){
-    if (n <= 0){
-        println("O número precisa ser maior ou igual a 0");
-        println("Gerando array de 10 elementos");
+public static void main() { ... }
+
+```
+
+Rules:
+- May be applied to file or function.
+- Function-level annotation overrides file-level.
+- Global default target = `"java"`.
+
+No cascading semantics.
+
+---
+
+## 8. Collections (Language-Level)
+
+These are language-defined types, not part of the standard library API.
+
+### 8.1 Array
+```
+
+Array<Integer> nums = {1, 2, 3};
+nums.append(4);
+nums.get(0);
+
+```
+
+### 8.2 Map
+```
+
+Map<String,integer> ages = new Map();
+ages.put("K", 25);
+
+```
+
+### 8.3 Set
+```
+
+Set<String> names = new Set();
+names.add("Klang");
+
+```
+
+---
+
+## 9. Error Handling
+
+```
+
+try {
+// ...
+} catch (Exception e) {
+    println("Error: " + e);
+}
+
+```
+
+The exception system is backend-dependent in v1.  
+Custom exceptions will be defined in future versions.
+
+---
+
+## 10. Complete Example
+
+```
+@Use("c")
+public static Array<Integer> build(integer n) {
+    if (n <= 0) {
+        println("Using fallback size 10");
         n = 10;
     }
 
-    Array<Integer> numeros = new Array(n);
-    for (integer i = 0; i < n; i++){
-        numeros.append(i);
+    Array<Integer> nums = new Array(n);
+    for (integer i = 0; i < n; i++) {
+        nums.append(i);
     }
 
-    return numeros;
-}
-
-public static void showNumbers(Array<Integer> numeros){
-    if (numeros.isEmpty()){
-        println("Não há números a serem exibidos.");
-        return;
-    }
-
-    for (integer n -> numeros){
-        printf("%d - %d\n", numeros.getIndexOf(n), n);
-    }
+    return nums;
 }
 
 @Use("java")
-public static void main(Array<String> args){
-    Array<Integer> numeros = new Array();
-    integer n;
-
-    n = askNumber();
-    numeros = generateArrayTo(n);
-    showNumbers(numeros);
+public static void main(Array<String> args) {
+    Array<Integer> nums = build(10);
+    for (integer x -> nums) {
+        println(x);
+    }
 }
-
-
----
+```
