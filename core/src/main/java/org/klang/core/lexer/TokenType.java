@@ -12,7 +12,6 @@ public enum TokenType {
     INCREMENT, DECREMENT, POWER,
     LTE, GTE, DOUBLEEQUAL, NOTEQUAL, AND, OR, ARROW,
 
-    @Deprecated
     // Generics
     NUMBER, IDENTIFIER,
 
@@ -22,7 +21,6 @@ public enum TokenType {
     PUBLIC, PRIVATE, PROTECTED, STATIC,
     TRUE, FALSE, INTEGER, DOUBLE, BOOLEAN,
     CHARACTER, STRING,
-    TYPE,
 
     // Especial
     AT, EOF

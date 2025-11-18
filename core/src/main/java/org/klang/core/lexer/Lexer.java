@@ -189,57 +189,12 @@ public class Lexer {
 
     }
 
-    private String readCharacter(char cAtual) {
-        StringBuilder s = new StringBuilder();
-
-        position++;
-        int lengthCharacter = 0;
-        char c = source.charAt(position);
-
-        while (c != '\'') {
-            if (lengthCharacter > 1) {
-                error("caractere maior que o esperado",
-                        "literais de caractere devem conter exatamente 1 caractere",
-                        DiagnosticType.LEXICAL);
-            }
-            if (c == '\\') {
-                position++;
-
-                if (position >= source.length()) {
-                    error("String não fechada: fim de arquivo inesperado", "Esperado \'", DiagnosticType.LEXICAL);
-                }
-
-                char escaped = source.charAt(position);
-                s.append('\\').append(escaped);
-            } else {
-                s.append(c);
-            }
-
-            position++;
-
-            if (position >= source.length()) {
-                error("String não fechada: fim de arquivo inesperado", "Esperado \'", DiagnosticType.LEXICAL);
-            }
-
-            c = source.charAt(position);
-            lengthCharacter++;
-        }
-
-        return s.toString();
-    }
-
-    private void error(String message, String note, DiagnosticType typeError) {
-        Span span = new Span(filePath, line, column, line, column + 1);
-        Diagnostic d = new Diagnostic(
-                typeError,
-                message,
-                span).addNote(new Note(note));
-
-        // Imprime o erro formatado antes de lançar
-
-        throw new DiagnosticException(d);
-    }
-
+    /*
+     * @Param: cAtual -> Caractere atual
+     * 
+     * @Return: Retorna a string entre "" a partir do cAtual (cAtual está incluso e
+     * deve ser = \").
+     */
     private String readString(char cAtual) {
         StringBuilder s = new StringBuilder();
 
@@ -282,11 +237,84 @@ public class Lexer {
         return s.toString();
     }
 
+    /*
+     * @Param: cAtual -> Caractere atual
+     * 
+     * @Return: Retorna o char entre '', é retornado como String pois ainda não a
+     * uso como sendo char.
+     */
+    private String readCharacter(char cAtual) {
+        StringBuilder s = new StringBuilder();
+
+        position++;
+        int lengthCharacter = 0;
+        char c = source.charAt(position);
+
+        while (c != '\'') {
+            if (lengthCharacter > 1) {
+                error("caractere maior que o esperado",
+                        "literais de caractere devem conter exatamente 1 caractere",
+                        DiagnosticType.LEXICAL);
+            }
+            if (c == '\\') {
+                position++;
+
+                if (position >= source.length()) {
+                    error("String não fechada: fim de arquivo inesperado", "Esperado \'", DiagnosticType.LEXICAL);
+                }
+
+                char escaped = source.charAt(position);
+                s.append('\\').append(escaped);
+            } else {
+                s.append(c);
+            }
+
+            position++;
+
+            if (position >= source.length()) {
+                error("String não fechada: fim de arquivo inesperado", "Esperado \'", DiagnosticType.LEXICAL);
+            }
+
+            c = source.charAt(position);
+            lengthCharacter++;
+        }
+
+        return s.toString();
+    }
+
+    /*
+     * @Param: message -> Mensagem do erro que sera explodido.
+     * 
+     * @Param: note -> Nota/Dica do que fazer para resolver.
+     * 
+     * @Param: tyeError -> Tipo do erro a ser explodido.
+     * 
+     */
+    private void error(String message, String note, DiagnosticType typeError) {
+        Span span = new Span(filePath, line, column, line, column + 1);
+        Diagnostic d = new Diagnostic(
+                typeError,
+                message,
+                span).addNote(new Note(note));
+
+        // Imprime o erro formatado antes de lançar
+
+        throw new DiagnosticException(d);
+    }
+
+    /*
+     * @Param: c -> Caractere atual.
+     * 
+     * @Return: Retorna se o caractere atual é uma quebra de linha.
+     */
     private boolean isNewLine(char c) {
         return c == '\n';
 
     }
 
+    /*
+     * @Return: Retorna se existe um próximo caractere (letra ou número).
+     */
     private boolean hasNext() {
         if (EOF()) {
             return false;
@@ -296,6 +324,9 @@ public class Lexer {
         return Character.isLetter(c) || Character.isDigit(c);
     }
 
+    /*
+     * @Return: Retorna o próximo caractere.
+     */
     private char getNext() {
         if (EOF()) {
             return '\0';
@@ -305,6 +336,9 @@ public class Lexer {
         return source.charAt(position);
     }
 
+    /*
+     * @Return: Retorna se é o fim do código fonte.
+     */
     private boolean EOF() {
         return position >= source.length();
     }
