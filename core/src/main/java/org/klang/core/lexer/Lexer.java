@@ -72,7 +72,13 @@ public class Lexer {
                 String value = s.toString();
 
                 TokenType tokenType = tokensTypeByString.getOrDefault(value, TokenType.IDENTIFIER);
-                tokens.add(new Token(tokenType, value));
+
+                if (tokenType == TokenType.IDENTIFIER) {
+                    tokens.add(new Token(tokenType, value));
+
+                } else {
+                    tokens.add(new Token(tokenType));
+                }
 
                 position++;
                 continue;
@@ -92,7 +98,6 @@ public class Lexer {
                 String value = s.toString();
 
                 tokens.add(new Token(TokenType.NUMBER, value));
-
                 position++;
 
                 continue;
@@ -101,13 +106,8 @@ public class Lexer {
             TokenType tokenType = tokensTypeByChar.getOrDefault(c, null);
 
             if (tokenType == null) {
-                Span span = new Span(filePath, line, column, line, column + 1);
-                Diagnostic d = new Diagnostic(
-                        DiagnosticType.LEXICAL,
-                        "Caractere inesperado '" + c + "'",
-                        span).addNote(new Note("Remova esse caractere ou corrija o token!"));
-
-                throw new DiagnosticException(d);
+                error("Caractere inesperado '" + c + "'", "Remova esse caractere ou corrija o token!",
+                        DiagnosticType.LEXICAL);
             }
 
             switch (c) {
@@ -116,11 +116,11 @@ public class Lexer {
                         tokens.add(new Token(TokenType.DOUBLEEQUAL));
                         position++;
 
-                        break;
+                        continue;
                     }
-                    tokens.add(new Token(tokenType));
 
-                    break;
+                    tokens.add(new Token(tokenType));
+                    continue;
                 }
 
                 case '+' -> {
@@ -128,11 +128,11 @@ public class Lexer {
                         tokens.add(new Token(TokenType.INCREMENT));
                         position++;
 
-                        break;
+                        continue;
                     }
-                    tokens.add(new Token(tokenType));
 
-                    break;
+                    tokens.add(new Token(tokenType));
+                    continue;
                 }
 
                 case '-' -> {
@@ -140,20 +140,19 @@ public class Lexer {
                         tokens.add(new Token(TokenType.DECREMENT));
                         position++;
 
-                        break;
+                        continue;
                     }
 
                     if (getNext() == '>') {
                         tokens.add(new Token(TokenType.ARROW));
                         position++;
 
-                        break;
+                        continue;
 
                     }
 
                     tokens.add(new Token(tokenType));
-
-                    break;
+                    continue;
                 }
 
                 case '>' -> {
@@ -161,11 +160,11 @@ public class Lexer {
                         tokens.add(new Token(TokenType.GTE));
                         position++;
 
-                        break;
+                        continue;
                     }
 
                     tokens.add(new Token(tokenType));
-                    break;
+                    continue;
                 }
 
                 case '<' -> {
@@ -173,11 +172,11 @@ public class Lexer {
                         tokens.add(new Token(TokenType.LTE));
                         position++;
 
-                        break;
+                        continue;
                     }
-                    tokens.add(new Token(tokenType));
 
-                    break;
+                    tokens.add(new Token(tokenType));
+                    continue;
                 }
 
             }
@@ -194,20 +193,22 @@ public class Lexer {
         StringBuilder s = new StringBuilder();
 
         position++;
+        int lengthCharacter = 0;
         char c = source.charAt(position);
 
         while (c != '\'') {
+            if (lengthCharacter > 1) {
+                error("caractere maior que o esperado",
+                        "literais de caractere devem conter exatamente 1 caractere",
+                        DiagnosticType.LEXICAL);
+            }
             if (c == '\\') {
                 position++;
-                if (position >= source.length()) {
-                    Span span = new Span(filePath, line, column, line, column + 1);
-                    Diagnostic d = new Diagnostic(
-                            DiagnosticType.LEXICAL,
-                            "String não fechada: fim de arquivo inesperado",
-                            span).addNote(new Note("Esperado \'"));
 
-                    throw new DiagnosticException(d);
+                if (position >= source.length()) {
+                    error("String não fechada: fim de arquivo inesperado", "Esperado \'", DiagnosticType.LEXICAL);
                 }
+
                 char escaped = source.charAt(position);
                 s.append('\\').append(escaped);
             } else {
@@ -217,19 +218,26 @@ public class Lexer {
             position++;
 
             if (position >= source.length()) {
-                Span span = new Span(filePath, line, column, line, column + 1);
-                Diagnostic d = new Diagnostic(
-                        DiagnosticType.LEXICAL,
-                        "String não fechada: fim de arquivo inesperado",
-                        span).addNote(new Note("Esperado \'"));
-
-                throw new DiagnosticException(d);
+                error("String não fechada: fim de arquivo inesperado", "Esperado \'", DiagnosticType.LEXICAL);
             }
 
             c = source.charAt(position);
+            lengthCharacter++;
         }
 
         return s.toString();
+    }
+
+    private void error(String message, String note, DiagnosticType typeError) {
+        Span span = new Span(filePath, line, column, line, column + 1);
+        Diagnostic d = new Diagnostic(
+                typeError,
+                message,
+                span).addNote(new Note(note));
+
+        // Imprime o erro formatado antes de lançar
+
+        throw new DiagnosticException(d);
     }
 
     private String readString(char cAtual) {
@@ -285,7 +293,7 @@ public class Lexer {
         }
 
         char c = source.charAt(position + 1);
-        return Character.isLetter(c) || Character.isDigit(c) || isLogicalChar(c);
+        return Character.isLetter(c) || Character.isDigit(c);
     }
 
     private char getNext() {
@@ -293,11 +301,8 @@ public class Lexer {
             return '\0';
         }
 
-        return source.charAt(position + 1);
-    }
-
-    private boolean isLogicalChar(char c) {
-        return c == '=' || c == '-' || c == '+' || c == '>';
+        position++;
+        return source.charAt(position);
     }
 
     private boolean EOF() {
@@ -305,18 +310,18 @@ public class Lexer {
     }
 
     private void initialzerhashMapTokensTypes() {
-        tokensTypeByString.put("return", TokenType.KEYWORD);
-        tokensTypeByString.put("if", TokenType.KEYWORD);
-        tokensTypeByString.put("otherwise", TokenType.KEYWORD);
-        tokensTypeByString.put("afterall", TokenType.KEYWORD);
-        tokensTypeByString.put("for", TokenType.KEYWORD);
-        tokensTypeByString.put("while", TokenType.KEYWORD);
-        tokensTypeByString.put("break", TokenType.KEYWORD);
-        tokensTypeByString.put("continue", TokenType.KEYWORD);
-        tokensTypeByString.put("public", TokenType.KEYWORD);
-        tokensTypeByString.put("private", TokenType.KEYWORD);
-        tokensTypeByString.put("static", TokenType.KEYWORD);
-        tokensTypeByString.put("protected", TokenType.KEYWORD);
+        tokensTypeByString.put("return", TokenType.RETURN);
+        tokensTypeByString.put("if", TokenType.IF);
+        tokensTypeByString.put("otherwise", TokenType.OTHERWISE);
+        tokensTypeByString.put("afterall", TokenType.AFTERALL);
+        tokensTypeByString.put("for", TokenType.FOR);
+        tokensTypeByString.put("while", TokenType.WHILE);
+        tokensTypeByString.put("break", TokenType.BREAK);
+        tokensTypeByString.put("continue", TokenType.CONTINUE);
+        tokensTypeByString.put("public", TokenType.PUBLIC);
+        tokensTypeByString.put("private", TokenType.PRIVATE);
+        tokensTypeByString.put("static", TokenType.STATIC);
+        tokensTypeByString.put("protected", TokenType.PROTECTED);
         tokensTypeByChar.put('@', TokenType.AT);
         tokensTypeByChar.put(',', TokenType.COMMA);
         tokensTypeByChar.put('+', TokenType.PLUS);

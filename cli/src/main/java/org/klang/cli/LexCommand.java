@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.klang.core.errors.DiagnosticException;
-import org.klang.core.errors.ErrorReporter;
+import org.klang.core.errors.DiagnosticFormatter;
 import org.klang.core.lexer.Lexer;
 
 @Command(name = "lex", description = "Mostra os tokens do arquivo")
@@ -16,6 +16,8 @@ public class LexCommand implements Runnable {
 
     @Parameters(paramLabel = "FILE")
     private File file;
+
+    private final DiagnosticFormatter formatter = new DiagnosticFormatter();
 
     @Override
     public void run() {
@@ -27,10 +29,9 @@ public class LexCommand implements Runnable {
 
             lexer.tokenize().forEach(System.out::println);
 
+            // Provavelmente na sua Main ou CLI
         } catch (DiagnosticException e) {
-            // Erro léxico com spans, notas, multi-line, etc.
-            ErrorReporter.report(e.diagnostic);
-            System.exit(1);
+            formatter.print(e.diagnostic);
 
         } catch (Exception e) {
             // erro inesperado → mostrar stacktrace (para debug)

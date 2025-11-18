@@ -13,6 +13,11 @@ public class Token {
         this.type = type;
     }
 
+    public Token(TokenType type, char value) {
+        this.type = type;
+        this.value = String.valueOf(value);
+    }
+
     @Override
     public String toString() {
         String saida = "" + type;
