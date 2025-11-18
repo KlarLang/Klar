@@ -1,8 +1,6 @@
 #!/bin/bash
 PROJECT_DIR="$HOME/Klang"
 
-# converte argumentos relativos para absolutos
-ARGS=()
 for arg in "$@"; do
     if [[ -f "$arg" ]]; then
         ARGS+=("$(realpath "$arg")")

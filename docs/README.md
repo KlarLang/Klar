@@ -49,6 +49,8 @@ Klang/
 ├── docs/         # Language specification and design notes
 ├── examples/     # Usage examples and samples
 ├── stdlib/       # Standard library modules
+├── kc            # Binary to run the Klang CLI more easily
+├── kc.bat        # Windows version
 └── LICENSE       # Apache-2.0
 ```
 
