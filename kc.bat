@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set "PROJECT_DIR=%USERPROFILE%\Klang"
+set "set "PROJECT_DIR=%~dp0"
 
-set ARGS=
+set ARGS=%*
 for %%A in (%*) do (
     if exist "%%~fA" (
         set "ABS=%%~fA"
