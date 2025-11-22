@@ -20,7 +20,7 @@ public final class Span {
             throw new IllegalArgumentException("startLine deve ser >= 1");
         }
         if (startColumn < 1) {
-            startColumn++;
+            throw new IllegalArgumentException("startColumn deve ser >= 1");
         }
         if (endLine < startLine) {
             throw new IllegalArgumentException("endLine não pode ser menor que startLine");
