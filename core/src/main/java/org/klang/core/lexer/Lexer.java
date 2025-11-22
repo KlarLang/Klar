@@ -54,7 +54,7 @@ public class Lexer {
             }
 
             // identifiers / keywords
-            if (Character.isLetter(c) || c == '_') {
+            if (Character.isLetter(c) || c == '_' || c == '$') {
                 String ident = readIdentifier();
 
                 TokenType type = tokensTypeByString.getOrDefault(ident, TokenType.IDENTIFIER);

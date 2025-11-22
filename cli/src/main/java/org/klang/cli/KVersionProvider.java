@@ -11,7 +11,7 @@ public class KVersionProvider implements IVersionProvider {
     @Override
     public String[] getVersion() {
         return new String[] {
-                WINE + "KLANG Language " + GRAY + "0.1.4-dev" + RESET,
+                WINE + "KLANG Language " + GRAY + "0.1.5-dev" + RESET,
                 WINE + "  ├─ CLI:          " + GRAY + "0.1.3-dev" + RESET,
                 WINE + "  ├─ Backend:      " + GRAY + "JVM" + RESET,
                 WINE + "  ├─ Build:        " + GRAY + "debug" + RESET,

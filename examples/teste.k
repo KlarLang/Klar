@@ -1,6 +1,6 @@
 @Use("c")
 public static void testeNumbers(){
-	integer x = 10_000;
+	integer $x = 10_000;
 	double y = 12.8;
 }
 
