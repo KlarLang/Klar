@@ -30,6 +30,7 @@ public final class Diagnostic {
         if (span != null) {
             this.secondarySpans.add(span);
         }
+
         return this;
     }
 

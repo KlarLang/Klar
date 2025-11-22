@@ -1,18 +1,30 @@
 package org.klang.cli;
 
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine;
 
-@Command(name = "k", subcommands = {
-        LexCommand.class,
-        VersionCommand.class,
-        GenerateCompletion.class
-})
+@Command(name = "kc", description = "Klang CLI", mixinStandardHelpOptions = false, // você controla o help
+        versionProvider = KVersionProvider.class, subcommands = {
+                LexCommand.class,
+                GenerateCompletion.class,
+                HelpCommand.class
+        })
 public class KMain implements Runnable {
+
+    @Option(names = { "-h", "--help" }, description = "Show this help catalog")
+    boolean help;
 
     @Override
     public void run() {
-        System.out.println("Klang CLI - Use 'k --help'");
+        // Prioridade: se a flag --help foi usada
+        if (help) {
+            new HelpCommand().run();
+            return;
+        }
+
+        // Caso o usuário digite só `kc`
+        new HelpCommand().run();
     }
 
     public static void main(String[] args) {

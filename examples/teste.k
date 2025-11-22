@@ -4,6 +4,8 @@ public static void testeNumbers(){
 	double y = 12.8;
 }
 
+$
+
 @Use("c")
 public static Array<Integer> build(integer n) {
     if (n <= 0) {
