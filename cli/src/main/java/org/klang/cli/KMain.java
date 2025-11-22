@@ -15,17 +15,24 @@ public class KMain implements Runnable {
     @Option(names = { "-h", "--help" }, description = "Show this help catalog")
     boolean help;
 
-    @Override
-    public void run() {
-        // Prioridade: se a flag --help foi usada
-        if (help) {
-            new HelpCommand().run();
-            return;
-        }
+    @Option(names = {"-V", "--version"}, versionHelp = true,
+        description = "Show Klang version")
+    boolean version;
 
-        // Caso o usuário digite só `kc`
+    @Override
+public void run() {
+    if (help) {
         new HelpCommand().run();
+        return;
     }
+
+    if (version) {
+        System.out.println(new KVersionProvider().getVersion()[0]);
+        return;
+    }
+
+    new HelpCommand().run();
+}
 
     public static void main(String[] args) {
         int exit = new CommandLine(new KMain()).execute(args);
