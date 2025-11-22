@@ -11,9 +11,7 @@ public class HelpCommand implements Runnable {
 
     // Paleta Klang (branding)
     private static final String WINE = "\u001B[38;2;127;0;31m"; // #7F001F
-    private static final String WINE_LIGHT = "\u001B[38;2;179;0;45m"; // #B3002D
     private static final String GRAY_LIGHT = "\u001B[38;2;209;209;209m"; // #D1D1D1
-    private static final String GRAY_STEEL = "\u001B[38;2;46;46;46m"; // #2E2E2E
 
     // Semântica Klang
     private static final String INFO_COLOR = "\u001B[38;2;100;149;237m";

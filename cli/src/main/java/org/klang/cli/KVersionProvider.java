@@ -8,7 +8,7 @@ public class KVersionProvider implements IVersionProvider {
     public String[] getVersion() {
         return new String[] {
                 "Klang Language 0.1.3-dev",
-                "CLI 0.1.1-dev",
+                "CLI 0.1.2-dev",
                 "Author: ~K'"
         };
     }
