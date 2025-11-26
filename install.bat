@@ -13,6 +13,8 @@ IF ERRORLEVEL 1 (
     EXIT /B 1 
 ) 
 
+gradlew.bat :cli:shadowJar
+
 ECHO Creating %INSTALL_DIR% ... 
 MKDIR "%INSTALL_DIR%" 
 :: MKDIR in batch does not give an error if the directory already exists, so we do not check it explicitly here. 

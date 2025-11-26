@@ -2,10 +2,12 @@
 
 set -e 
 
+
 PROJECT_DIR="$HOME/Klang" 
 
 cd "$PROJECT_DIR" || { echo "Error: Unable to enter directory $PROJECT_DIR. Aborting."; exit 1; } 
 
+./gradlew :cli:shadowJar
 
 echo "Creating /usr/local/klang ..." 
 sudo mkdir -p /usr/local/klang && echo "Created/existing /usr/local/klang directory." || { echo "Failed to create directory."; exit 1; } 
