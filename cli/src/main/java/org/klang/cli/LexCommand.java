@@ -30,7 +30,7 @@ public class LexCommand implements Runnable {
 
                 Span span = new Span(null, 1, 1, 1, 1); // fileless → works in any context
 
-                Diagnostic d = Diagnostic.builder(DiagnosticType.ERROR, "The file must be a .k file")
+                Diagnostic d = Diagnostic.builder(DiagnosticType.TYPE, "The file must be a .k file")
                         .primary(span)
                         .addNote(new Note("Maybe you got confused with another file type?"))
                         .build();

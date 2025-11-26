@@ -16,7 +16,7 @@ public class KVersionProvider implements IVersionProvider {
                 "",
                 formatHeader(),
                 "",
-                formatEntry("CLI", "0.1.5-dev"),
+                formatEntry("CLI", "0.1.6-dev"),
                 formatEntry("Backend", "JVM"),
                 formatEntry("Build", "debug"),
                 formatEntry("Target", detectTarget()),
