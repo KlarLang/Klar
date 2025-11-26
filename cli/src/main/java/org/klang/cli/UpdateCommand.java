@@ -131,7 +131,16 @@ public class UpdateCommand implements Runnable {
 
     private void updateCli() {
 
-        ProcessBuilder pb = new ProcessBuilder("./gradlew", ":cli:shadowJar");
+        String osName = System.getProperty("os.name");
+        String command;
+
+        if (osName != null && osName.toLowerCase().startsWith("windows")) {
+            command = "gradlew.bat";
+        } else {
+            command = "./gradlew";
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(command, ":cli:shadowJar");
         pb.inheritIO();
 
         try {
