@@ -9,7 +9,7 @@ public class KVersionProvider implements IVersionProvider {
 
     private static final String WINE = "\u001B[38;2;127;0;31m";
     private static final String GRAY = "\u001B[38;2;180;180;180m";
-    private static final String VERSION = "0.1.10";
+    private static final String VERSION = "0.1.13";
 
     @Override
     public String[] getVersion() {
