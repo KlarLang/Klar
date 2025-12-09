@@ -18,6 +18,10 @@ public class Token {
         this.value = String.valueOf(value);
     }
 
+    public TokenType getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
         String saida = "" + type;
