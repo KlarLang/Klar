@@ -23,7 +23,7 @@ public class Lexer {
      * 
      * @return List of tokens extracted from the source code
      */
-    public List<Token> tokenize() {
+    public List<Token> tokenizeSourceCode() {
         while (!isAtEnd()) {
             char c = peek();
 
@@ -60,12 +60,12 @@ public class Lexer {
                 }
 
                 String ident = readIdentifier();
-                TokenType type = tokensTypeByString.getOrDefault(ident, TokenType.IDENTIFIER);
+                TokenType tokenType = tokensTypeByString.getOrDefault(ident, TokenType.IDENTIFIER);
 
-                if (type == TokenType.IDENTIFIER)
-                    tokens.add(new Token(type, ident));
+                if (tokenType == TokenType.IDENTIFIER)
+                    tokens.add(new Token(tokenType, ident));
                 else
-                    tokens.add(new Token(type));
+                    tokens.add(new Token(tokenType));
                 continue;
             }
 
@@ -80,8 +80,10 @@ public class Lexer {
                 // line comment
                 advance();
                 advance(); // consume '//'
-                while (!isAtEnd() && peek() != '\n')
+                while (!isAtEnd() && peek() != '\n'){
+
                     advance();
+                }
                 continue;
             }
 
@@ -94,6 +96,7 @@ public class Lexer {
                         advance(); // consume '*/'
                         break;
                     }
+
                     if (peek() == '\n') {
                         line++;
                         column = 0;
@@ -530,13 +533,13 @@ public class Lexer {
         tokensTypeByString.put("true", TokenType.TRUE);
         tokensTypeByString.put("false", TokenType.FALSE);
         tokensTypeByString.put("integer", TokenType.INTEGER);
-	tokensTypeByString.put("try", TokenType.TRY);
-	tokensTypeByString.put("catch", TokenType.CATCH);
+	    tokensTypeByString.put("try", TokenType.TRY);
+    	tokensTypeByString.put("catch", TokenType.CATCH);
         tokensTypeByString.put("double", TokenType.DOUBLE);
         tokensTypeByString.put("boolean", TokenType.BOOLEAN);
         tokensTypeByString.put("character", TokenType.CHARACTER_TYPE);
         tokensTypeByString.put("void", TokenType.VOID);
-	tokensTypeByString.put("null", TokenType.NULL);
+	    tokensTypeByString.put("null", TokenType.NULL);
         tokensTypeByString.put("fresh", TokenType.FRESH);
         tokensTypeByString.put("Use", TokenType.USE);
 
@@ -589,7 +592,7 @@ public class Lexer {
     public void testTokenize() {
         this.source = "integer x = 10;";
 
-        tokenize();
+        tokenizeSourceCode();
 
         for (Token token : tokens) {
             System.out.println(token);

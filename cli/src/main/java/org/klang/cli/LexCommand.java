@@ -41,7 +41,7 @@ public class LexCommand implements Runnable {
             String source = Files.readString(path);
 
             Lexer lexer = new Lexer(source, file.getPath());
-            lexer.tokenize().forEach(System.out::println);
+            lexer.tokenizeSourceCode().forEach(System.out::println);
 
         } catch (DiagnosticException e) {
             DiagnosticPrinter printer = new DiagnosticPrinter(true, true);
