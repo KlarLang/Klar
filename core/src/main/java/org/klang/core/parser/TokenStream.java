@@ -11,6 +11,7 @@ public class TokenStream {
     List<Token> tokens = new ArrayList<>();
     int position = 0;
 
+
     public TokenStream(ArrayList<Token> tokens){
         this.tokens = tokens;
     }

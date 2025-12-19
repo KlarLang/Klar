@@ -1,6 +1,7 @@
 package org.klang.core.lexer;
 
 public enum TokenType {
+    USE,
 
     // Single-Character
     LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET,
@@ -16,7 +17,7 @@ public enum TokenType {
     NUMBER, IDENTIFIER,
 
     // Keywords
-    RETURN, IF, OTHERWISE, AFTERALL,
+    CLASS, RETURN, IF, OTHERWISE, AFTERALL,
     FOR, WHILE, BREAK, CONTINUE, TRY, CATCH,
     PUBLIC, PRIVATE, PROTECTED, STATIC,
     TRUE, FALSE, NULL, INTEGER, DOUBLE, BOOLEAN,

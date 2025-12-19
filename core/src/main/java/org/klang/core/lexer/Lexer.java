@@ -514,6 +514,7 @@ public class Lexer {
      */
     private void initialzerhashMapTokensTypes() {
         // Keywords
+        tokensTypeByString.put("class", TokenType.CLASS);
         tokensTypeByString.put("return", TokenType.RETURN);
         tokensTypeByString.put("if", TokenType.IF);
         tokensTypeByString.put("otherwise", TokenType.OTHERWISE);
@@ -537,6 +538,8 @@ public class Lexer {
         tokensTypeByString.put("void", TokenType.VOID);
 	tokensTypeByString.put("null", TokenType.NULL);
         tokensTypeByString.put("fresh", TokenType.FRESH);
+        tokensTypeByString.put("Use", TokenType.USE);
+
 
         // References
         tokensTypeByString.put("String", TokenType.STRING_TYPE);

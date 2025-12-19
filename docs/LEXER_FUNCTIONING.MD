@@ -45,6 +45,8 @@
 - CHARACTER       'x'
 
 ## Keywords
+- CLASS
+- USE
 - RETURN
 - IF
 - OTHERWISE
@@ -71,3 +73,12 @@
 ## Special
 - AT              @
 - EOF
+
+## Note on Identifier Validation
+
+The lexer recognizes identifiers generically.
+
+Strict validation of identifier intent and naming rules
+is performed at the parser and semantic analysis stages.
+
+This separation is intentional.

@@ -1,97 +1,99 @@
-# Klang — A Polyglot Programming Language
+# Klang Programming Language
 
-Klang is an experimental programming language focused on **clarity**, **deterministic semantics**, and **real polyglot interoperability**.  
-Designed and developed by ~K’, Klang aims to provide a predictable, minimal and expressive syntax while enabling modules to target multiple language backends.
+Klang is a strictly explicit programming language designed to organize
+complex, polyglot software systems.
+
+It does not attempt to replace existing languages.
+Instead, it orchestrates them.
+
+## Core Principles
+
+- Explicitness over convenience
+- Determinism over magic
+- Clarity over brevity
+- Intent over convention
+
+Klang treats language boundaries, types, and intent as first-class concepts.
 
 ---
 
-## Vision
+## Strict by Default
 
-Klang is built to:
+Klang is **strict by default**.
 
-- provide a simple and predictable syntax,
-- enable direct interoperability with Java, Python, Go, Rust, and C,
-- support modular compilation and controlled transpilation,
-- act as a bridge between ecosystems rather than a competitor.
+Running:
 
-> Klang exists to connect languages — not to replace them.
+    klang build
+
+is equivalent to:
+
+    klang build --rigor=strict
+
+In strict mode:
+- ambiguous identifiers are rejected
+- public symbols must declare intent
+- implicit behavior is forbidden
+- semantic vagueness is treated as a compile-time error
+
+This is intentional.
+
+Klang believes that most long-term software problems are caused not by bugs,
+but by ambiguity.
+
+---
+
+## Compilation Rigor Levels
+
+Klang supports different rigor levels, but relaxing rules is always explicit.
+
+### strict (default)
+- full intent validation
+- strict naming grammar
+- no implicit conversions
+- recommended for all production code
+
+### explicit
+- same as strict, but some violations emit warnings instead of errors
+
+### lenient
+- disables intent enforcement
+- allows ambiguous naming
+- intended only for experimentation
+
+⚠ WARNING:
+Lenient mode exists for learning and experimentation only.
+It weakens the guarantees that define the Klang language.
+
+---
+
+## Why Klang Exists
+
+Modern software systems are inherently polyglot.
+
+Klang exists to:
+- make cross-language boundaries explicit
+- prevent semantic leakage between ecosystems
+- reduce cognitive load in large systems
+- enforce clarity where complexity is unavoidable
+
+Klang does not optimize for speed of writing.
+It optimizes for speed of understanding.
 
 ---
 
 ## Philosophy
 
-- readability first  
-- deterministic behavior  
-- minimal and explicit syntax  
-- isolated transpilation units  
-- polyglot by design  
+Klang rejects:
+- silent corrections
+- implicit coercions
+- ambiguous defaults
+- convention without declaration
+
+If something matters, it must be written down.
 
 ---
 
-## Example Syntax
+## Status
 
-```k
-if (x > 0) {
-    println("Positive");
-} afterall {
-    println("Zero or negative");
-}
-````
-
----
-
-## Project Structure
-
-```
-Klang/
-├── cli/          # Klang CLI
-├── core/         # Lexer, parser, AST, transpilers
-├── docs/         # Language specification and design notes
-├── examples/     # Usage examples and samples
-├── stdlib/       # Standard library modules
-├── kc            # Binary to run the Klang CLI more easily
-├── kc.bat        # Windows version
-└── LICENSE       # Apache-2.0
-```
-
----
-
-## Roadmap
-
-* [ ] Stable lexer
-* [ ] Parser + AST
-* [ ] Java transpiler
-* [ ] CLI (build / run / transpile)
-* [ ] Syntax specification v1
-* [ ] Modular interoperability
-* [ ] Basic runtime
-
-Current priority: **lexer → parser → AST**.
-
----
-
-## License
-
-Klang is licensed under the **Apache License 2.0**.
-You are free to use, modify, and distribute this software — including commercially — as long as you preserve the copyright and license notices.
-
-See the `LICENSE` file for details.
-
----
-
-## Contributing
-
-Contributions are welcome, especially in compiler architecture, AST modeling, runtime design, and documentation.
-
-1. Fork the repository
-2. Create a feature branch (`feature/name`)
-3. Open a pull request
-
-Use issues to discuss design questions, syntax proposals, and roadmap progression.
-
----
-
-## Author
-
-Created and maintained by **~K' (Lucas Paulino da Silva)**
-Klang © 2025 — Apache-2.0
+Klang is an experimental language.
+Its design favors long-term correctness over short-term convenience.
