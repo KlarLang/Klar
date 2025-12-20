@@ -8,4 +8,5 @@ public abstract class ExpressionNode {
         this.line = line;
         this.column = column;
     }
+
 }

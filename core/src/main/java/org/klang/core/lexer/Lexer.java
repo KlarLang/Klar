@@ -41,7 +41,7 @@ public class Lexer {
             if (c == '"') {
                 advance(); // consume opening quote
                 String content = readString(); // now readString doesn't know about the quote
-                tokens.add(new Token(TokenType.STRING_LITERAL, content));
+                tokens.add(new Token(TokenType.STRING_LITERAL, content, line, position));
                 continue;
             }
 
@@ -49,7 +49,7 @@ public class Lexer {
             if (c == '\'') {
                 advance(); // consume opening apostrophe
                 String content = readCharacter();
-                tokens.add(new Token(TokenType.CHARACTER_LITERAL, content));
+                tokens.add(new Token(TokenType.CHARACTER_LITERAL, content, line, position));
                 continue;
             }
 
@@ -63,7 +63,7 @@ public class Lexer {
                 TokenType tokenType = tokensTypeByString.getOrDefault(ident, TokenType.IDENTIFIER);
 
                 if (tokenType == TokenType.IDENTIFIER)
-                    tokens.add(new Token(tokenType, ident));
+                    tokens.add(new Token(tokenType, ident, line, position));
                 else
                     tokens.add(new Token(tokenType));
                 continue;
@@ -72,7 +72,7 @@ public class Lexer {
             // numbers
             if (Character.isDigit(c)) {
                 String num = readNumber();
-                tokens.add(new Token(TokenType.NUMBER, num));
+                tokens.add(new Token(TokenType.NUMBER, num, line, position));
                 continue;
             }
 
