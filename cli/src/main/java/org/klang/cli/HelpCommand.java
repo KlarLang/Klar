@@ -36,6 +36,7 @@ public class HelpCommand implements Runnable {
         System.out.println(WINE + BOLD + "  Commands" + RESET);
         System.out.println("    " + BOLD + "lex" + RESET + "              Show tokens of a .k source file");
         System.out.println("    " + BOLD + "gen-completion" + RESET + "   Generate autocomplete script");
+        System.out.println("    " + BOLD + "parse" + RESET + "   Parse file.k");
         System.out.println();
 
         // Options

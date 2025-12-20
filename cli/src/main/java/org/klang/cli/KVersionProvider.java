@@ -24,22 +24,22 @@ public class KVersionProvider implements IVersionProvider {
         };
     }
 
-    private String formatHeader() {
+    private static String formatHeader() {
         return WINE + BOLD + "KLANG" + RESET +
                 " " + "• " + VERSION + "-dev" + RESET;
     }
 
-    private String formatEntry(String label, String value) {
+    private static String formatEntry(String label, String value) {
         return "  " + label +
                 padRight(label, 12) +
                 RESET + GRAY + value + RESET;
     }
 
-    private String detectTarget() {
+    private static String detectTarget() {
         return System.getProperty("os.name") + "-" + System.getProperty("os.arch");
     }
 
-    private String padRight(String text, int total) {
+    private static String padRight(String text, int total) {
         int missing = total - text.length();
         return " ".repeat(Math.max(1, missing));
     }
