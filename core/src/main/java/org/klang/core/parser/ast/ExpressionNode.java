@@ -1,12 +1,8 @@
 package org.klang.core.parser.ast;
 
-public abstract class ExpressionNode {
-    public final int line;
-    public final int column;
-
+public abstract class ExpressionNode extends AstNode{
     public ExpressionNode(int line, int column){
-        this.line = line;
-        this.column = column;
+        super(line, column);
     }
 
 }
