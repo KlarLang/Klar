@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.klang.core.lexer.Token;
 import org.klang.core.lexer.TokenType;
+import org.klang.core.parser.ast.AssignmentStatementNode;
 import org.klang.core.parser.ast.BinaryExpressionNode;
 import org.klang.core.parser.ast.ExpressionNode;
 import org.klang.core.parser.ast.LiteralExpressionNode;
@@ -19,77 +20,7 @@ public class TokenStream {
     List<Token> tokens = new ArrayList<>();
     int position = 0;
 
-    public TokenStream(List<Token> tokens){
-        this.tokens = tokens;
-    }
-
-    private boolean isAtEnd(){
-        return current().getType() == TokenType.EOF;
-    }
-    
-    public Token current(){
-        return tokens.get(position);
-    }
-
-    public Token consume(){
-        if (isAtEnd()){
-            return tokens.get(position);
-        }
-        
-        Token token = tokens.get(position); 
-        position++;
-
-        return token;
-    }
-
-    public Token peek(int offset){
-        if (isAtEnd()){
-            return tokens.get(position);
-        }
-
-        if (offset < 0){
-            offset = 0;
-        } 
-        
-        int index = offset + position;
-
-        if (index > tokens.size() - 1){
-            return tokens.get(tokens.size() - 1);
-        }
-
-        return tokens.get(index);
-    }
-
-    public boolean match(TokenType... types){
-        for (TokenType tokenType : types) {
-            if (check(tokenType)){
-                consume();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean check(TokenType type){
-        if (isAtEnd()){
-            return false;
-        }
-
-        return current().getType() == type;
-    }
-
-    public Token expect(TokenType type, String message) {
-        if (!check(type)){
-            error(message);
-        }
-        
-        return consume();
-    }
-
-    public void error(String message){
-        throw new ParserException(message);
-    }
+    // Parser
 
     public VariableDeclarationNode parseValDecl(){
         Token type = current();
@@ -189,14 +120,115 @@ public class TokenStream {
 
         if (isType(current().getType())) {
             return parseValDecl();
+        } else if (check(TokenType.IDENTIFIER) && peek(1).getType() == TokenType.ASSIGNMENT){
+            return parseAssignmentStatement();
         }
 
         error("Unexpected token '" + current().getType() + "'");
         return null;
     }
 
+    public ProgramNode parseProgram() {
+        List<StatementNode> statements = new ArrayList<>();
 
-    private boolean isType(TokenType type){
+        while (!isAtEnd()) {
+            StatementNode stmt = parseStatement();
+
+            if (stmt != null){
+                statements.add(stmt);
+            } 
+        }
+
+
+        return new ProgramNode(statements);
+    }
+
+    public StatementNode parseAssignmentStatement(){
+        Token identifier = expect(TokenType.IDENTIFIER, "Expected variable name");
+
+        expect(TokenType.ASSIGNMENT, "Expected '=' after variable '" + identifier.getValue() + "'");
+        
+        ExpressionNode value = parseExpression();
+        
+        expect(TokenType.SEMICOLON, "Expected ';' after assignment");
+
+        return new AssignmentStatementNode(identifier, value, identifier.getLine(), identifier.getColumn());
+    }
+
+    // Utility do Parser
+    public TokenStream(List<Token> tokens){
+        this.tokens = tokens;
+    }
+
+    private boolean isAtEnd(){
+        return current().getType() == TokenType.EOF;
+    }
+    
+    public Token current(){
+        return tokens.get(position);
+    }
+
+    public Token consume(){
+        if (isAtEnd()){
+            return tokens.get(position);
+        }
+        
+        Token token = tokens.get(position); 
+        position++;
+
+        return token;
+    }
+
+    public Token peek(int offset){
+        if (isAtEnd()){
+            return tokens.get(position);
+        }
+
+        if (offset < 0){
+            offset = 0;
+        } 
+        
+        int index = offset + position;
+
+        if (index > tokens.size() - 1){
+            return tokens.get(tokens.size() - 1);
+        }
+
+        return tokens.get(index);
+    }
+
+    public boolean match(TokenType... types){
+        for (TokenType tokenType : types) {
+            if (check(tokenType)){
+                consume();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean check(TokenType type){
+        if (isAtEnd()){
+            return false;
+        }
+
+        return current().getType() == type;
+    }
+
+    public Token expect(TokenType type, String message) {
+        if (!check(type)){
+            error(message);
+        }
+        
+        return consume();
+    }
+
+    public void error(String message){
+        throw new ParserException(message);
+    }
+
+        private boolean isType(TokenType type){
         return Heddle.TYPES.contains(type);
     }
 
@@ -210,18 +242,6 @@ public class TokenStream {
 
     private boolean isFactorOperator(TokenType type){
         return Heddle.FACTOR_OPERATORS.contains(type);
-    }
-
-    public ProgramNode parseProgram() {
-        List<StatementNode> statements = new ArrayList<>();
-
-        while (!isAtEnd()) {
-            StatementNode stmt = parseStatement();
-            if (stmt != null) statements.add(stmt);
-        }
-
-
-        return new ProgramNode(statements);
     }
 
 }

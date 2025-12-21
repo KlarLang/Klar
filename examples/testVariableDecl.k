@@ -1,4 +1,4 @@
 integer x = 12;
 integer y = x;
 
-x = y; // erro aqui
+x = 1 + 2 * 4 / 7;
