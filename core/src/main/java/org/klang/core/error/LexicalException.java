@@ -1,7 +1,7 @@
 package org.klang.core.error;
 
-import org.klang.core.diagnostic.DiagnosticColors;
 import org.klang.core.diagnostic.DiagnosticCode;
+import org.klang.core.diagnostic.DiagnosticColors;
 
 public final class LexicalException extends KException {
 
@@ -24,12 +24,15 @@ public final class LexicalException extends KException {
         // CABEÇALHO DO ERRO
         // ========================================
         
+        // [K:E001] em vermelho (âncora visual)
+        // InvalidCharacter em cinza claro (descrição)
         sb.append(DiagnosticColors.structure("[K:"))
-          .append(DiagnosticColors.error(code.name()))
+          .append(DiagnosticColors.errorCode(code.name()))
           .append(DiagnosticColors.structure("] "))
-          .append(DiagnosticColors.error(code.name))
+          .append(DiagnosticColors.errorName(code.name))
           .append("\n");
         
+        // ERROR (Lexical) discreto, só informativo
         sb.append(DiagnosticColors.structure("ERROR (Lexical)"))
           .append("\n");
         
@@ -54,14 +57,14 @@ public final class LexicalException extends KException {
         for (int i = 0; i < contextLines.length; i++) {
             int currentLine = firstLineInContext + i;
             
-            // Número da linha + separador
-            sb.append(DiagnosticColors.structure(
+            // Número discreto (90) + pipe quase invisível (70) + código claro (220)
+            sb.append(DiagnosticColors.lineNumber(
                     String.format("%" + maxLineDigitWidth + "d", currentLine)))
               .append(DiagnosticColors.separator(" | "))
               .append(DiagnosticColors.neutral(contextLines[i]))
               .append("\n");
             
-            // Se é a linha do erro, adiciona o caret
+            // Caret vermelho na linha do erro
             if (currentLine == errorLine) {
                 sb.append(" ".repeat(maxLineDigitWidth))
                   .append(DiagnosticColors.separator(" | "))
@@ -82,16 +85,16 @@ public final class LexicalException extends KException {
           .append("\n");
         
         sb.append("\n");
-        sb.append(DiagnosticColors.help("Fix:"))
+        sb.append(DiagnosticColors.structure("Fix:"))
           .append("\n  ")
-          .append(DiagnosticColors.help(fix))
+          .append(DiagnosticColors.neutral(fix))
           .append("\n");
 
         if (example != null) {
             sb.append("\n");
-            sb.append(DiagnosticColors.help("Example:"))
+            sb.append(DiagnosticColors.structure("Example:"))
               .append("\n  ")
-              .append(DiagnosticColors.helpAccent(example))
+              .append(DiagnosticColors.neutral(example))
               .append("\n");
         }
 

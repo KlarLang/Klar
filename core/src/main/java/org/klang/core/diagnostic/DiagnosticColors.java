@@ -20,21 +20,27 @@ public final class DiagnosticColors {
     // CAMADA 1 - ESTRUTURA (metadados)
     // ========================================
     
-    /** Metadados: [K:E001], at file:line:col, números de linha */
+    /** Metadados: [K:E001], ERROR (Lexical), at file:line:col */
     public static final String STRUCTURE = "\u001B[38;2;150;150;150m";
     
-    /** Separadores: pipes |, dois-pontos em labels */
-    public static final String SEPARATOR = "\u001B[38;2;100;100;100m";
+    /** Números de linha (discretos, não competem com código) */
+    public static final String LINE_NUMBER = "\u001B[38;2;90;90;90m";
+    
+    /** Separadores: pipes |, dois-pontos em labels (mais escuros ainda) */
+    public static final String SEPARATOR = "\u001B[38;2;70;70;70m";
 
     // ========================================
     // CAMADA 2 - ERRO (foco visual)
     // ========================================
     
-    /** Erro primário: nome do erro, caret ^, token inválido */
-    public static final String ERROR = "\u001B[38;2;220;50;47m";
+    /** Código do erro: [K:E001] - âncora visual forte */
+    public static final String ERROR_CODE = "\u001B[38;2;220;50;47m";
     
-    /** Erro secundário: contexto adicional */
-    public static final String ERROR_DIM = "\u001B[38;2;180;80;77m";
+    /** Nome do erro: InvalidCharacter - descrição, não foco */
+    public static final String ERROR_NAME = "\u001B[38;2;200;200;200m";
+    
+    /** Caret ^, token inválido - foco absoluto */
+    public static final String ERROR_HIGHLIGHT = "\u001B[38;2;220;50;47m";
 
     // ========================================
     // CAMADA 3 - AJUDA (resolução)
@@ -104,6 +110,11 @@ public final class DiagnosticColors {
         return colorize(text, STRUCTURE);
     }
 
+    /** Números de linha (discretos) */
+    public static String lineNumber(String text) {
+        return colorize(text, LINE_NUMBER);
+    }
+
     /** Separadores (pipes, dois-pontos) */
     public static String separator(String text) {
         return colorize(text, SEPARATOR);
@@ -111,12 +122,22 @@ public final class DiagnosticColors {
 
     /** Erro primário (foco visual) */
     public static String error(String text) {
-        return colorize(text, ERROR);
+        return colorize(text, ERROR_HIGHLIGHT);
+    }
+
+    /** Código do erro [K:E001] - âncora visual */
+    public static String errorCode(String text) {
+        return colorize(text, ERROR_CODE);
+    }
+
+    /** Nome do erro - descrição */
+    public static String errorName(String text) {
+        return colorize(text, ERROR_NAME);
     }
 
     /** Erro secundário (contexto) */
     public static String errorDim(String text) {
-        return colorize(text, ERROR_DIM);
+        return colorize(text, ERROR_HIGHLIGHT);
     }
 
     /** Ajuda (fix, example) */
@@ -186,6 +207,11 @@ public final class DiagnosticColors {
             return this;
         }
 
+        public Builder lineNumber(String text) {
+            sb.append(DiagnosticColors.lineNumber(text));
+            return this;
+        }
+
         public Builder separator(String text) {
             sb.append(DiagnosticColors.separator(text));
             return this;
@@ -193,6 +219,16 @@ public final class DiagnosticColors {
 
         public Builder error(String text) {
             sb.append(DiagnosticColors.error(text));
+            return this;
+        }
+
+        public Builder errorCode(String text) {
+            sb.append(DiagnosticColors.errorCode(text));
+            return this;
+        }
+
+        public Builder errorName(String text) {
+            sb.append(DiagnosticColors.errorName(text));
             return this;
         }
 
@@ -226,27 +262,33 @@ public final class DiagnosticColors {
     public static void printColorTest() {
         System.out.println("\n=== Klang Diagnostic Colors Test ===\n");
         
-        System.out.println(neutral("NEUTRAL:   ") + neutral("This is neutral text (code, examples)"));
-        System.out.println(structure("STRUCTURE: ") + structure("This is structure (metadata, line numbers)"));
-        System.out.println(separator("SEPARATOR: ") + separator("| : (pipes and colons)"));
-        System.out.println(error("ERROR:     ") + error("This is primary error (focus)"));
-        System.out.println(errorDim("ERROR_DIM: ") + errorDim("This is secondary error (context)"));
-        System.out.println(help("HELP:      ") + help("This is help (fix, example)"));
-        System.out.println(helpAccent("HELP_ACC:  ") + helpAccent("This is help accent"));
+        System.out.println(neutral("NEUTRAL:    ") + neutral("This is neutral text (code, examples)"));
+        System.out.println(structure("STRUCTURE:  ") + structure("This is structure (metadata)"));
+        System.out.println(lineNumber("LINE_NUM:   ") + lineNumber("This is line number (very discrete)"));
+        System.out.println(separator("SEPARATOR:  ") + separator("| : (pipes and colons - almost invisible)"));
+        System.out.println(errorCode("ERROR_CODE: ") + errorCode("[K:E001] - visual anchor"));
+        System.out.println(errorName("ERROR_NAME: ") + errorName("InvalidCharacter - description"));
+        System.out.println(error("ERROR_HIGH: ") + error("^ caret and invalid token"));
+        System.out.println(help("HELP:       ") + help("This is help (fix, example)"));
+        System.out.println(helpAccent("HELP_ACC:   ") + helpAccent("This is help accent"));
         
         System.out.println("\n=== Combined Example ===\n");
         System.out.println(
-            structure("[K:E001] ") + 
-            error("InvalidCharacter") + 
-            structure("\nERROR (Lexical)\nat ") + 
-            neutral("examples/teste.k:") + 
-            structure("38:0")
+            structure("[K:")
+            + errorCode("E001")
+            + structure("] ")
+            + errorName("InvalidCharacter") 
+            + "\n"
+            + structure("ERROR (Lexical)")
+            + "\n"
+            + structure("at ")
+            + neutral("examples/teste.k:")
+            + structure("38:0") +
+            "\n\n" +
+            lineNumber("36") + separator(" | ") + neutral("$") +
+            "\n" + separator("   | ") + error("^")
         );
         
         System.out.println("\nCurrent mode: " + mode);
-    }
-
-    public static void main(String[] args) {
-        printColorTest();
     }
 }
