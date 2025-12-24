@@ -33,8 +33,8 @@
 - DOUBLEEQUAL     ==
 - NOTEQUAL        !=
 
-- AND             &&
-- OR              ||
+- AND             and
+- OR              or
  
 - ARROW           ->
 
@@ -49,6 +49,7 @@
 - RETURN
 - IF
 - OTHERWISE
+- BECAUSE
 - AFTERALL
 - FOR
 - WHILE
