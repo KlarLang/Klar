@@ -21,20 +21,13 @@ public final class LexicalException extends KException {
     public String format() {
         StringBuilder sb = new StringBuilder();
 
-        // ========================================
-        // CABEÇALHO DO ERRO
-        // ========================================
-        
-        // [K:E001] em vermelho (âncora visual)
-        // InvalidCharacter em cinza claro (descrição)
         sb.append(DiagnosticColors.structure("[K:"))
           .append(DiagnosticColors.errorCode(code.name()))
           .append(DiagnosticColors.structure("] "))
           .append(DiagnosticColors.errorName(code.name))
           .append("\n");
         
-        // ERROR (Lexical) discreto, só informativo
-        sb.append(DiagnosticColors.structure("ERROR (" + code.phase.name() + ")"))
+        sb.append(DiagnosticColors.structure("ERROR (")).append(code.phase.name()).append(")")
           .append("\n");
         
         sb.append(DiagnosticColors.structure("at "))
@@ -45,39 +38,30 @@ public final class LexicalException extends KException {
           .append(DiagnosticColors.structure(String.valueOf(location.column())))
           .append("\n\n");
 
-        // ========================================
-        // CONTEXTO DE CÓDIGO
-        // ========================================
         
         int errorLine = location.line();
         int maxLineDigitWidth = String.valueOf(errorLine).length();
         
-        // Calcula primeira linha mostrada
         int firstLineInContext = errorLine - (contextLines.length - 1);
 
         for (int i = 0; i < contextLines.length; i++) {
             int currentLine = firstLineInContext + i;
             
-            // Número discreto (90) + pipe quase invisível (70) + código claro (220)
             sb.append(DiagnosticColors.lineNumber(
-                    String.format("%" + maxLineDigitWidth + "d", currentLine)))
+              padLeft(currentLine, maxLineDigitWidth)
+              ))
               .append(DiagnosticColors.separator(" | "))
               .append(DiagnosticColors.neutral(contextLines[i]))
               .append("\n");
             
-            // Caret vermelho na linha do erro
             if (currentLine == errorLine) {
                 sb.append(" ".repeat(maxLineDigitWidth))
-                  .append(DiagnosticColors.separator(" |  "))
+                  .append(DiagnosticColors.separator(" | "))
                   .append(" ".repeat(Math.max(0, location.column() - length)))
                   .append(DiagnosticColors.error("^".repeat(this.length)));
                   sb.append("\n");
             }
         }
-
-        // ========================================
-        // RODAPÉ - CAUSE, FIX, EXAMPLE
-        // ========================================
         
         sb.append("\n");
         sb.append(DiagnosticColors.structure("Cause:"))

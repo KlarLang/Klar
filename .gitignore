@@ -25,6 +25,9 @@
 docs/diagnostic-ptbr.md
 docs/analise-completa.md
 
+*.k
+*.txt
+
 *.war
 *.ear
 *.nar
@@ -138,3 +141,9 @@ config/local.yml
 # ---------------------------
 *.kc
 *.ko
+
+gc*
+allo*
+*.jfr
+klang-*
+teste.sh

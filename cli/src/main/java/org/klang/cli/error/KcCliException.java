@@ -6,6 +6,7 @@ abstract public class KcCliException extends RuntimeException {
     protected final KcDiagnosticCode code;
     protected final String command;
     protected final String fix;
+    private volatile String cachedMessage;
 
     public KcCliException(
         KcDiagnosticCode code,
@@ -23,12 +24,16 @@ abstract public class KcCliException extends RuntimeException {
 
     @Override
     public final String getMessage() {
-        return format();
+        if (cachedMessage == null){
+            cachedMessage = format();
+        }
+
+        return cachedMessage;
     }
 
     @Override
     public String toString() {
-        return format();
+        return getMessage();
     }
 
     @Override

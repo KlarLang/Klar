@@ -1,6 +1,5 @@
 package org.klang.core.semantics;
 
-import org.klang.core.error.SemanticException;
 import org.klang.core.lexer.Token;
 import org.klang.core.parser.ast.*;
 

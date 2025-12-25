@@ -34,7 +34,6 @@ public final class Heddle {
     );
 
     public static final EnumSet<TokenType> FACTOR_OPERATORS = EnumSet.of(
-        TokenType.POWER,
         TokenType.MULTIPLY,
         TokenType.DIVISION,
         TokenType.REMAINDER

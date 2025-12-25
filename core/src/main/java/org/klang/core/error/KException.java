@@ -12,6 +12,7 @@ public abstract class KException extends RuntimeException {
     protected final String example;
     protected final String note;
     protected final int length;
+    private volatile String cachedMessage;
 
     protected KException(
         DiagnosticCode code,
@@ -36,17 +37,32 @@ public abstract class KException extends RuntimeException {
 
     @Override
     public final String getMessage() {
-        return format();
+        if (cachedMessage == null){
+            cachedMessage = format();
+        }
+
+        return cachedMessage;
     }
 
     @Override
     public String toString() {
-        return format();
+        return getMessage();
     }
 
     @Override
     public synchronized Throwable fillInStackTrace() {
         return this; 
+    }
+
+    protected static String padLeft(int value, int width) {
+        String s = String.valueOf(value);
+        int padding = width - s.length();
+
+        if (padding <= 0) {
+            return s;
+        }
+
+        return " ".repeat(padding) + s;
     }
 
     public abstract String format();

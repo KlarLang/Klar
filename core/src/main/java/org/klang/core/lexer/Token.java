@@ -1,9 +1,10 @@
 package org.klang.core.lexer;
 
 public class Token {
-    TokenType type;
-    String value;
-    int line, column;
+    public final TokenType type;
+    public final String value;
+    public final int line;
+    public final int column;
 
     public Token(TokenType type, String value, int line, int column) {
         this.type = type;
@@ -12,13 +13,18 @@ public class Token {
         this.column = column;
     }
 
-    public Token(TokenType type) {
+    public Token(TokenType type, int line, int column) {
         this.type = type;
+        this.value = null;
+        this.line = line;
+        this.column = column;
     }
 
-    public Token(TokenType type, char value) {
+    public Token(TokenType type, char value, int line, int column) {
         this.type = type;
         this.value = String.valueOf(value);
+        this.line = line;
+        this.column = column;
     }
 
     public TokenType getType() {

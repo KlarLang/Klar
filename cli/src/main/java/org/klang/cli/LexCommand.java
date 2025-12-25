@@ -6,11 +6,13 @@ import picocli.CommandLine.Parameters;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.klang.cli.error.KcInvalidFileType;
 import org.klang.cli.error.diagnostic.KcDiagnosticCode;
 import org.klang.core.error.KException;
 import org.klang.core.lexer.Lexer;
+import org.klang.core.lexer.Token;
 
 @Command(
     name = "lex",
@@ -33,12 +35,18 @@ public class LexCommand implements Runnable {
         try {
             String source = Files.readString(path);
             Lexer lexer = new Lexer(source, file.getPath());
-            lexer.tokenizeSourceCode().forEach(System.out::println);
+            List<Token> a = lexer.tokenizeSourceCode();
+
+            for (Token var : a) {
+                System.out.println(var);
+            };
+            
 
         } catch (KException e) {
             System.out.println(e.format());
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Internal compiler error", e);
         }
     }

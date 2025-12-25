@@ -10,7 +10,7 @@ public enum TokenType {
     LT, GT, BANG,
 
     // Multi-Character
-    INCREMENT, DECREMENT, POWER,
+    INCREMENT, DECREMENT,
     LTE, GTE, DOUBLEEQUAL, NOTEQUAL, AND, OR, ARROW,
 
     // Generics

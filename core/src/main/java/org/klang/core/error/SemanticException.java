@@ -1,6 +1,7 @@
 package org.klang.core.error;
 
 import org.klang.core.diagnostic.DiagnosticCode;
+import org.klang.core.diagnostic.DiagnosticColors;
 
 public final class SemanticException extends KException {
 
@@ -23,7 +24,7 @@ public final class SemanticException extends KException {
 
         sb.append("[K:").append(code.name()).append("] ")
           .append(code.name).append("\n")
-          .append("ERROR (Lexical)\n")
+          .append(DiagnosticColors.structure("ERROR (")).append(code.phase.name()).append(")")
           .append("at ")
           .append(location.file())
           .append(":")

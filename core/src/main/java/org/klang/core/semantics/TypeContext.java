@@ -3,10 +3,6 @@ package org.klang.core.semantics;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
-
-import org.klang.core.error.SemanticException;
-
 public class TypeContext {
 
     private final TypeContext parent;

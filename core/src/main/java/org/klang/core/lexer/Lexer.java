@@ -3,6 +3,7 @@ package org.klang.core.lexer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.klang.core.diagnostic.DiagnosticCode;
 import org.klang.core.error.LexicalException;
@@ -10,28 +11,51 @@ import org.klang.core.error.SourceLocation;
 import org.klang.core.error.SourceManager;
 
 public class Lexer {
+    
+    private int position = 0;
+    private int line = 1;
+    private int column = 0;
+    
+    private final String source;
+    private final String filePath;
+    
+    private final char[] input;
+    private final int length;
 
-    List<Token> tokens = new ArrayList<>();
-
-    int position = 0;
-    int line = 1;
-    int column = 0;
-
-    String source;
-    String filePath;
+    private final List<Token> tokens;
 
     private final SourceManager sourceManager;
-    private StringBuilder stringBuilder = new StringBuilder();
+    private final StringBuilder stringBuilder = new StringBuilder(255);
 
-    HashMap<String, TokenType> tokensTypeByString = new HashMap<>();
-    HashMap<Character, TokenType> tokensTypeByChar = new HashMap<>();
+    private final HashMap<String, TokenType> tokensTypeByString = new HashMap<>(65,1.0f);
+    private final TokenType[] singleCharTokens = new TokenType[128];
+
+    private final Map<String, String> symbolTable = new HashMap<>(512, 0.75f);
 
     public Lexer(String source, String filePath) {
         this.source = source;
         this.filePath = filePath;
+
+        this.input = source.toCharArray();
+        this.length = input.length;
+
         this.sourceManager = new SourceManager(source);
+        int estimedTokens = Math.max(16, source.length() / 4);
+        this.tokens = new ArrayList<>(estimedTokens);
 
         initialzerhashMapTokensTypes();
+    }
+
+    private String canonical(String s){
+        String existing = symbolTable.get(s);
+
+        if (existing != null){
+            return existing;
+        } 
+
+        symbolTable.put(s, s);
+        return s;
+
     }
 
     public List<Token> tokenizeSourceCode() {
@@ -93,12 +117,13 @@ public class Lexer {
                 }
 
                 String ident = readIdentifier();
+                ident = canonical(ident);
                 TokenType tokenType = tokensTypeByString.getOrDefault(ident, TokenType.IDENTIFIER);
 
                 if (tokenType == TokenType.IDENTIFIER) {
                     tokens.add(new Token(tokenType, ident, line, position));
                 } else {
-                    tokens.add(new Token(tokenType));
+                    tokens.add(new Token(tokenType, line, position));
                 }
 
                 continue;
@@ -144,13 +169,12 @@ public class Lexer {
                 continue;
             }
 
-            TokenType tokenType = tokensTypeByChar.get(c);
+            TokenType tokenType = c < 128 ? singleCharTokens[c] : null;
             this.stringBuilder.setLength(0);
             switch (c) {
                 case '@':
                     advance();
-
-                    tokens.add(new Token(TokenType.AT));
+                    tokens.add(TokenFactory.simple(TokenType.AT, line, column));
 
                     continue;
 
@@ -158,9 +182,9 @@ public class Lexer {
                     advance();
 
                     if (match('=')) {
-                        tokens.add(new Token(TokenType.DOUBLEEQUAL));
+                        tokens.add(TokenFactory.simple(TokenType.DOUBLEEQUAL, line, column));
                     } else {
-                        tokens.add(new Token(tokenType));
+                        tokens.add(TokenFactory.simple(TokenType.ASSIGNMENT, line, column));
                     }
 
                     continue;
@@ -169,9 +193,9 @@ public class Lexer {
                     advance();
 
                     if (match('+')) {
-                        tokens.add(new Token(TokenType.INCREMENT));
+                        tokens.add(TokenFactory.simple(TokenType.INCREMENT, line, column));
                     } else {
-                        tokens.add(new Token(tokenType));
+                        tokens.add(TokenFactory.simple(TokenType.PLUS, line, column));
                     }
 
                     continue;
@@ -179,7 +203,7 @@ public class Lexer {
                 case '.':
                     advance();
 
-                    tokens.add(new Token(TokenType.DOT));
+                    tokens.add(TokenFactory.simple(TokenType.DOT, line, column));
 
                     continue;
 
@@ -187,22 +211,32 @@ public class Lexer {
                     advance();
 
                     if (match('-')) {
-                        tokens.add(new Token(TokenType.DECREMENT));
+                        tokens.add(TokenFactory.simple(TokenType.DECREMENT, line, column));
                     } else if (match('>')) {
-                        tokens.add(new Token(TokenType.ARROW));
+                        tokens.add(TokenFactory.simple(TokenType.ARROW, line, column));
                     } else {
-                        tokens.add(new Token(tokenType));
+                        tokens.add(TokenFactory.simple(TokenType.MINUS, line, column));
                     }
 
                     continue;
 
                 case '*':
                     advance();
-
-                    if (match('*')) {
-                        tokens.add(new Token(TokenType.POWER));
+                    this.stringBuilder.append('*');
+                    
+                    if (peek() == '*') {
+                        while (peek() == '*') {
+                            this.stringBuilder.append(advance());
+                        }
+                        
+                        lexicalError(
+                            DiagnosticCode.E001,
+                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
+                            "Use Mathematics.power() for logical AND.",
+                            "double powerResult = Mathematics.power(variableAPotentize);",
+                        null ,this.stringBuilder.length());
                     } else {
-                        tokens.add(new Token(tokenType));
+                        tokens.add(TokenFactory.simple(TokenType.MULTIPLY, line, column));
                     }
 
                     continue;
@@ -211,9 +245,9 @@ public class Lexer {
                     advance();
 
                     if (match('=')) {
-                        tokens.add(new Token(TokenType.GTE));
+                        tokens.add(TokenFactory.simple(TokenType.GTE, line, column));
                     } else {
-                        tokens.add(new Token(tokenType));
+                        tokens.add(TokenFactory.simple(TokenType.GT, line, column));
                     }
 
                     continue;
@@ -222,9 +256,9 @@ public class Lexer {
                     advance();
 
                     if (match('=')) {
-                        tokens.add(new Token(TokenType.LTE));
+                        tokens.add(TokenFactory.simple(TokenType.LTE, line, column));
                     } else {
-                        tokens.add(new Token(tokenType));
+                        tokens.add(TokenFactory.simple(TokenType.LT, line, column));
                     }
 
                     continue;
@@ -233,9 +267,9 @@ public class Lexer {
                     advance();
 
                     if (match('=')) {
-                        tokens.add(new Token(TokenType.NOTEQUAL));
+                        tokens.add(TokenFactory.simple(TokenType.NOTEQUAL, line, column));
                     } else {
-                        tokens.add(new Token(TokenType.BANG));
+                        tokens.add(TokenFactory.simple(TokenType.BANG, line, column));
                     }
 
                     continue;
@@ -283,11 +317,11 @@ public class Lexer {
                     );
             }
 
-            tokens.add(new Token(tokenType));
+            tokens.add(TokenFactory.simple(tokenType, line, position));
             advance();
         }
 
-        tokens.add(new Token(TokenType.EOF));
+        tokens.add(TokenFactory.simple(TokenType.EOF, line, column));
         return tokens;
     }
 
@@ -466,15 +500,17 @@ public class Lexer {
     }   
 
     private String readIdentifier() {
-        this.stringBuilder.setLength(0);
-
+        int start = position;
+        advance();
         
-        this.stringBuilder.append(advance());
         while (Character.isLetterOrDigit(peek()) || peek() == '_') {
-            this.stringBuilder.append(advance());
+            advance();
         }
 
-        return this.stringBuilder.toString();
+        int len = position - start;
+        String ident = new String(input, start, len);
+
+        return canonical(ident);
     }
 
     private String readNumber() {
@@ -513,7 +549,7 @@ public class Lexer {
     }
 
     private boolean isAtEnd() {
-        return position >= source.length();
+        return position >= this.length;
     }
 
     private char peek() {
@@ -522,16 +558,18 @@ public class Lexer {
 
         }
 
-        return source.charAt(position);
+        return this.input[position];
     }
 
     private char peekNext() {
-        if (position + 1 >= source.length()) {
+        int next = position + 1;
+
+        if (next >= this.length) {
             return '\0';
 
         }
 
-        return source.charAt(position + 1);
+        return this.input[next];
     }
 
     private char advance() {
@@ -608,26 +646,26 @@ public class Lexer {
         tokensTypeByString.put("String", TokenType.STRING_TYPE);
 
         // Single-Characters
-        tokensTypeByChar.put('(', TokenType.LPAREN);
-        tokensTypeByChar.put(')', TokenType.RPAREN);
-        tokensTypeByChar.put('{', TokenType.LBRACE);
-        tokensTypeByChar.put('}', TokenType.RBRACE);
-        tokensTypeByChar.put('[', TokenType.LBRACKET);
-        tokensTypeByChar.put(']', TokenType.RBRACKET);
-        tokensTypeByChar.put(',', TokenType.COMMA);
-        tokensTypeByChar.put(';', TokenType.SEMICOLON);
-        tokensTypeByChar.put(':', TokenType.COLON);
-        tokensTypeByChar.put('.', TokenType.DOT);
-        tokensTypeByChar.put('+', TokenType.PLUS);
-        tokensTypeByChar.put('-', TokenType.MINUS);
-        tokensTypeByChar.put('*', TokenType.MULTIPLY);
-        tokensTypeByChar.put('/', TokenType.DIVISION);
-        tokensTypeByChar.put('%', TokenType.REMAINDER);
-        tokensTypeByChar.put('=', TokenType.ASSIGNMENT);
-        tokensTypeByChar.put('<', TokenType.LT);
-        tokensTypeByChar.put('>', TokenType.GT);
-        tokensTypeByChar.put('!', TokenType.BANG);
+        singleCharTokens['('] = TokenType.LPAREN;
+        singleCharTokens[')'] = TokenType.RPAREN;
+        singleCharTokens['{'] = TokenType.LBRACE;
+        singleCharTokens['}'] = TokenType.RBRACE;
+        singleCharTokens['['] = TokenType.LBRACKET;
+        singleCharTokens[']'] = TokenType.RBRACKET;
+        singleCharTokens[','] = TokenType.COMMA;
+        singleCharTokens[';'] = TokenType.SEMICOLON;
+        singleCharTokens[':'] = TokenType.COLON;
+        singleCharTokens['.'] = TokenType.DOT;
+        singleCharTokens['+'] = TokenType.PLUS;
+        singleCharTokens['-'] = TokenType.MINUS;
+        singleCharTokens['*'] = TokenType.MULTIPLY;
+        singleCharTokens['/'] = TokenType.DIVISION;
+        singleCharTokens['%'] = TokenType.REMAINDER;
+        singleCharTokens['='] = TokenType.ASSIGNMENT;
+        singleCharTokens['<'] = TokenType.LT;
+        singleCharTokens['>'] = TokenType.GT;
+        singleCharTokens['!'] = TokenType.BANG;
         // Specials
-        tokensTypeByChar.put('@', TokenType.AT);
+        singleCharTokens['@'] = TokenType.AT;
     }
 }
