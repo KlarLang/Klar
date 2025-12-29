@@ -7,5 +7,10 @@ public enum Type {
     STRING,
     CHARACTER,
     VOID,
-    UNKNOWN
+    NULL,
+    UNKNOWN;
+
+    public boolean isReference(){
+        return this == STRING;
+    }
 }

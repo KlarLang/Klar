@@ -1,29 +1,101 @@
 package org.klang.core.semantics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.klang.core.lexer.Token;
 import org.klang.core.parser.ast.*;
 
 public class TypeChecker {
 
-    public void check(ProgramNode program) {
-        TypeContext global = new TypeContext(null);
+    private Type currentReturnType = null;
+    private final FunctionTable functions = new FunctionTable();
 
+    public void check(ProgramNode program) {
+        for (StatementNode node : program.statements){
+            if (node instanceof FunctionDeclarationNode f){
+                collectFunction(f);
+            }
+        }
+
+        TypeContext global = new TypeContext(null);
         for (StatementNode stmt : program.statements) {
             checkStatement(stmt, global);
         }
     }
 
-    // STATEMENTS
+    public Type checkCallExpression(CallExpressionNode node, TypeContext ctx){
+        FunctionSymbol fn = functions.resolve(node.callee.getValue());
 
-    private void checkStatement(StatementNode node, TypeContext ctx) {
+        if (node.arguments.size() != fn.parameters.size()){
+            error(
+                "Function '" + fn.name + "' expects "
+                + fn.parameters.size()
+                + " arguments, got "
+                + node.arguments.size(),
+                node
+            );
+        }
+
+        for (int i = 0; i < node.arguments.size(); i++){
+            Type arg = checkExpression(node.arguments.get(i), ctx);
+            Type param = fn.parameters.get(i);
+
+            if (!isAssignable(arg, param)){
+                error(
+                    "Argument " + (i + 1)
+                    + " of '" + fn.name
+                    + "' expected " + param
+                    + ", got " + arg,
+                    node
+                );
+            }
+        }
+
+        return fn.returnType;
+    }
+
+    public void collectFunction(FunctionDeclarationNode fn){
+        if (fn.name.getValue().equals("println")) {
+            throw new RuntimeException("Cannot redefine builtin function 'println'");
+        }
+
+        if (fn.name.getValue().equals("print")) {
+            throw new RuntimeException("Cannot redefine builtin function 'print'");
+        }
+
+        Type returnType = resolveType(fn.returnType);
+
+        List<Type> args = new ArrayList<>(10);
+        for (ParameterNode p : fn.parameters){
+            args.add(resolveType(p.type));
+        }
+
+        functions.declare(new FunctionSymbol(fn.name.getValue(), returnType, args));
+    }
+
+    public void checkStatement(StatementNode node, TypeContext ctx) {
 
         if (node instanceof VariableDeclarationNode v) {
-            checkVariableDeclaration(v, ctx);
+            Type declared = resolveType(v.type.getBaseType());
+            Type value = checkExpression(v.value, ctx);
+
+            if (!isAssignable(value, declared)) {
+                error("Cannot assign " + value + " to " + declared, node);
+            }
+
+            ctx.declare(v.name.getValue(), declared);
             return;
         }
 
         if (node instanceof AssignmentStatementNode a) {
-            checkAssignment(a, ctx);
+            Type target = resolveTarget(a.name, ctx);
+            Type value  = checkExpression(a.value, ctx);
+
+
+            if (!isAssignable(value, target)) {
+                error("Type mismatch: expected " + target + ", got " + value, node);
+            }
             return;
         }
 
@@ -33,7 +105,10 @@ public class TypeChecker {
         }
 
         if (node instanceof BlockStatementNode b) {
-            checkBlock(b, ctx);
+            TypeContext local = new TypeContext(ctx);
+            for (StatementNode stmt : b.statements) {
+                checkStatement(stmt, local);
+            }
             return;
         }
 
@@ -42,41 +117,27 @@ public class TypeChecker {
             return;
         }
 
+        if (node instanceof ReturnStatementNode r) {
+            checkReturn(r, ctx);
+            return;
+        }
+
         error("Unsupported statement", node);
     }
 
-    private void checkVariableDeclaration(VariableDeclarationNode node, TypeContext ctx) {
-        Type declared = resolveType(node.type);
-        Type value = checkExpression(node.value, ctx);
-
-        if (declared != value) {
-            error("Cannot assign " + value + " to " + declared, node);
+    public void checkFunctionDeclaration(FunctionDeclarationNode node, TypeContext ctx) {
+        if (node.name.getValue().equals("main")) {
+            if (!node.parameters.isEmpty()) {
+                error("main function cannot have parameters", node);
+            }
+            if (resolveType(node.returnType) != Type.VOID) {
+                error("main function must return void", node);
+            }
         }
 
-        ctx.declare(node.name.getValue(), declared);
-    }
-
-    private void checkAssignment(AssignmentStatementNode node, TypeContext ctx) {
-        Type target = ctx.resolve(node.name.getValue());
-        Type value = checkExpression(node.value, ctx);
-
-        if (target != value) {
-            error("Type mismatch in assignment: expected " + target + ", got " + value, node);
-        }
-    }
-
-    private void checkBlock(BlockStatementNode node, TypeContext parent) {
-        TypeContext local = new TypeContext(parent);
-
-        for (StatementNode stmt : node.statements) {
-            checkStatement(stmt, local);
-        }
-    }
-
-    private void checkFunctionDeclaration(FunctionDeclarationNode node, TypeContext ctx) {
         Type returnType = resolveType(node.returnType);
+        currentReturnType = returnType;
 
-        // Novo escopo para parâmetros + corpo
         TypeContext local = new TypeContext(ctx);
 
         for (ParameterNode param : node.parameters) {
@@ -84,17 +145,34 @@ public class TypeChecker {
             local.declare(param.name.getValue(), paramType);
         }
 
-        checkBlock(node.body, local);
+        checkStatement(node.body, local);
+        currentReturnType = null;
     }
 
-    /* =========================
-       EXPRESSIONS
-       ========================= */
+    public void checkReturn(ReturnStatementNode node, TypeContext ctx) {
 
-    private Type checkExpression(ExpressionNode node, TypeContext ctx) {
+        if (currentReturnType == Type.VOID) {
+            if (node.value != null) {
+                error("Void function cannot return a value", node);
+            }
+            return;
+        }
+
+        if (node.value == null) {
+            error("Non-void function must return a value", node);
+        }
+
+        Type value = checkExpression(node.value, ctx);
+
+        if (!isAssignable(value, currentReturnType)) {
+            error("Return type mismatch: expected " + currentReturnType + ", got " + value, node);
+        }
+    }
+
+    public Type checkExpression(ExpressionNode node, TypeContext ctx) {
 
         if (node instanceof LiteralExpressionNode l) {
-            return resolveType(l.value);
+            return resolveLiteral(l.value);
         }
 
         if (node instanceof VariableExpressionNode v) {
@@ -102,10 +180,10 @@ public class TypeChecker {
         }
 
         if (node instanceof BinaryExpressionNode b) {
-            return checkBinaryExpression(b, ctx);
+            return checkBinary(b, ctx);
         }
 
-        if (node instanceof CallExpressionNode c) {
+        if (node instanceof CallExpressionNode c) {            
             return checkCallExpression(c, ctx);
         }
 
@@ -113,30 +191,45 @@ public class TypeChecker {
         return Type.UNKNOWN;
     }
 
-    private Type checkBinaryExpression(BinaryExpressionNode node, TypeContext ctx) {
+    public Type checkBinary(BinaryExpressionNode node, TypeContext ctx) {
         Type left = checkExpression(node.left, ctx);
         Type right = checkExpression(node.right, ctx);
 
-        if (left != right) {
-            error("Type mismatch in binary expression: " + left + " vs " + right, node);
-        }
+        return switch (node.operator.getType()) {
 
-        return left;
+            case DOUBLEEQUAL, NOTEQUAL -> Type.BOOLEAN;
+
+            case PLUS -> {
+                if (left == Type.STRING || right == Type.STRING) {
+                    yield Type.STRING;
+                }
+                if (left == right) {
+                    yield left;
+                }
+                error("Invalid operands for '+'", node);
+                yield Type.UNKNOWN;
+            }
+
+            default -> {
+                if (left != right) {
+                    error("Type mismatch in binary expression", node);
+                }
+                yield left;
+            }
+        };
     }
 
-    private Type checkCallExpression(CallExpressionNode node, TypeContext ctx) {
-        // Placeholder: ainda não há tabela de funções
-        for (ExpressionNode arg : node.arguments) {
-            checkExpression(arg, ctx);
-        }
-        return Type.UNKNOWN;
+    public Type resolveLiteral(Token token) {
+        return switch (token.getType()) {
+            case NUMBER -> Type.INTEGER;
+            case TRUE, FALSE -> Type.BOOLEAN;
+            case STRING_LITERAL -> Type.STRING;
+            case NULL -> Type.NULL;
+            default -> Type.UNKNOWN;
+        };
     }
 
-    /* =========================
-       UTIL
-       ========================= */
-
-    private Type resolveType(Token token) {
+    public Type resolveType(Token token) {
         return switch (token.getType()) {
             case INTEGER -> Type.INTEGER;
             case DOUBLE -> Type.DOUBLE;
@@ -148,7 +241,27 @@ public class TypeChecker {
         };
     }
 
-    private void error(String message, AstNode node) {
-        
+
+    public void error(String msg, AstNode node) {
+        throw new RuntimeException(msg + " at " + node.line + ":" + node.column);
     }
+
+    public boolean isAssignable(Type from, Type to) {
+        if (to == Type.UNKNOWN) return true;
+
+        if (from == to) return true;
+
+        if (from == Type.NULL && to.isReference()) return true;
+
+        return false;
+    }
+
+    private Type resolveTarget(ExpressionNode node, TypeContext ctx) {
+        if (node instanceof VariableExpressionNode v) {
+            return ctx.resolve(v.name.getValue());
+        }
+        error("Invalid assignment target", node);
+        return Type.UNKNOWN;
+    }
+
 }

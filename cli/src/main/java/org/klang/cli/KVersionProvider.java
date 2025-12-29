@@ -5,7 +5,7 @@ import org.klang.cli.error.diagnostic.KcDiagnosticColors;
 import picocli.CommandLine.IVersionProvider;
 
 public class KVersionProvider implements IVersionProvider {
-    private static final String VERSION = "0.7.1";
+    private static final String VERSION = "0.10.0";
     private static final StringBuilder  str = new StringBuilder();
 
     @Override

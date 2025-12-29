@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.klang.core.diagnostic.DiagnosticCode;
-import org.klang.core.error.LexicalException;
-import org.klang.core.error.SourceLocation;
-import org.klang.core.error.SourceManager;
+import org.klang.core.diagnostics.DiagnosticCode;
+import org.klang.core.errors.LexicalException;
+import org.klang.core.errors.SourceLocation;
+import org.klang.core.errors.SourceManager;
 
 public class Lexer {
     
@@ -22,7 +22,7 @@ public class Lexer {
     private final char[] input;
     private final int length;
 
-    private final List<Token> tokens;
+    private final ArrayList<Token> tokens;
 
     private final SourceManager sourceManager;
     private final StringBuilder stringBuilder = new StringBuilder(255);
@@ -32,14 +32,14 @@ public class Lexer {
 
     private final Map<String, String> symbolTable = new HashMap<>(512, 0.75f);
 
-    public Lexer(String source, String filePath) {
+    public Lexer(String source, String filePath, SourceManager sourceManager) {
         this.source = source;
         this.filePath = filePath;
 
         this.input = source.toCharArray();
         this.length = input.length;
 
-        this.sourceManager = new SourceManager(source);
+        this.sourceManager = sourceManager;
         int estimedTokens = Math.max(16, source.length() / 4);
         this.tokens = new ArrayList<>(estimedTokens);
 
@@ -192,8 +192,19 @@ public class Lexer {
                 case '+':
                     advance();
 
-                    if (match('+')) {
-                        tokens.add(TokenFactory.simple(TokenType.INCREMENT, line, column));
+                    this.stringBuilder.append('+');
+                    if (peek() == '+') {
+                        while (peek() == '+') {
+                            this.stringBuilder.append(advance());
+                        }
+                        
+                        lexicalError(
+                            DiagnosticCode.E001,
+                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
+                            "Increment is not valid in K, increment manually.",
+                            "integer varialeToIncrement = 0;\n  varialeToIncrement = varialeToIncrement + 1;",
+                        null ,this.stringBuilder.length());
+
                     } else {
                         tokens.add(TokenFactory.simple(TokenType.PLUS, line, column));
                     }
@@ -209,11 +220,31 @@ public class Lexer {
 
                 case '-':
                     advance();
-
-                    if (match('-')) {
-                        tokens.add(TokenFactory.simple(TokenType.DECREMENT, line, column));
-                    } else if (match('>')) {
-                        tokens.add(TokenFactory.simple(TokenType.ARROW, line, column));
+                    
+                    if (peek() == '-') {
+                        this.stringBuilder.append('-');
+                        while (peek() == '-') {
+                            this.stringBuilder.append(advance());
+                        }
+                        
+                        lexicalError(
+                            DiagnosticCode.E001,
+                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
+                            "Decrement is not valid in K, decrement manually.",
+                            "integer varialeToDecrement = 1;\n  varialeToDecrement = varialeToDecrement - 1;",
+                        null ,this.stringBuilder.length());
+                    } else if (peek() == '>') {
+                        this.stringBuilder.append('>');
+                        while (peek() == '-' || peek() == '>') {
+                            this.stringBuilder.append(advance());
+                        }
+                        
+                        lexicalError(
+                            DiagnosticCode.E001,
+                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
+                            "Remove this.",
+                            null,
+                        null ,this.stringBuilder.length());
                     } else {
                         tokens.add(TokenFactory.simple(TokenType.MINUS, line, column));
                     }
@@ -322,16 +353,19 @@ public class Lexer {
         }
 
         tokens.add(TokenFactory.simple(TokenType.EOF, line, column));
+        tokens.trimToSize();
         return tokens;
     }
 
     private String readString(int startLine, int startColumn) {
         this.stringBuilder.setLength(0);
+        this.stringBuilder.append("\"");
         String example = "\"" + this.stringBuilder.toString().strip() + "\"";
 
         while (!isAtEnd()) {
             char c = advance();
             if (c == '"') {
+                this.stringBuilder.append("\"");
                 return this.stringBuilder.toString();
             }
 
@@ -399,6 +433,8 @@ public class Lexer {
 
     private String readCharacter() {
         this.stringBuilder.setLength(0);
+        this.stringBuilder.append("\'");
+
         int errorLength = 1;
         
         if (isAtEnd()) {
@@ -496,6 +532,9 @@ public class Lexer {
         }
 
         advance();
+        c += '\'';
+        value = String.valueOf(c);
+        
         return value;
     }   
 
@@ -618,14 +657,10 @@ public class Lexer {
         tokensTypeByString.put("if", TokenType.IF);
         tokensTypeByString.put("otherwise", TokenType.OTHERWISE);
         tokensTypeByString.put("afterall", TokenType.AFTERALL);
-        tokensTypeByString.put("for", TokenType.FOR);
         tokensTypeByString.put("while", TokenType.WHILE);
-        tokensTypeByString.put("break", TokenType.BREAK);
-        tokensTypeByString.put("continue", TokenType.CONTINUE);
         tokensTypeByString.put("public", TokenType.PUBLIC);
         tokensTypeByString.put("internal", TokenType.INTERNAL);
         tokensTypeByString.put("protected", TokenType.PROTECTED);
-        tokensTypeByString.put("static", TokenType.STATIC);
         tokensTypeByString.put("true", TokenType.TRUE);
         tokensTypeByString.put("false", TokenType.FALSE);
         tokensTypeByString.put("integer", TokenType.INTEGER);
@@ -637,9 +672,11 @@ public class Lexer {
         tokensTypeByString.put("void", TokenType.VOID);
         tokensTypeByString.put("null", TokenType.NULL);
         tokensTypeByString.put("new", TokenType.NEW);
-        tokensTypeByString.put("Use", TokenType.USE);
+        tokensTypeByString.put("Use", TokenType.IDENTIFIER);
         tokensTypeByString.put("or", TokenType.OR);
         tokensTypeByString.put("and", TokenType.AND);
+        tokensTypeByString.put("module", TokenType.MODULE);
+        tokensTypeByString.put("import", TokenType.IMPORT);
         tokensTypeByString.put("because", TokenType.BECAUSE);
 
         // References

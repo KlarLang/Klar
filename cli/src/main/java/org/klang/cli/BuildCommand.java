@@ -15,12 +15,14 @@ import org.klang.core.lexer.Lexer;
 import org.klang.core.lexer.Token;
 import org.klang.core.parser.Parser;
 import org.klang.core.parser.ast.ProgramNode;
+import org.klang.core.semantics.TypeChecker;
+import org.klang.core.transpilers.JavaTranspiler;
 
 @Command(
-    name = "parse",
-    description = "Parse file.k"
+    name = "build",
+    description = "Build Klang source to Java"
 )
-public class ParseCommand implements Runnable {
+public class BuildCommand implements Runnable {
 
     @Parameters(paramLabel = "FILE")
     private File file;
@@ -32,22 +34,38 @@ public class ParseCommand implements Runnable {
         if (!path.getFileName().toString().endsWith(".k")) {
             throw new KcInvalidFileType(
                 KcDiagnosticCode.KC002,
-                 "parse",
-                  null,
-                   path.getFileName().toString());
+                "build",
+                null,
+                path.getFileName().toString()
+            );
         }
 
         try {
+            // 1. Read
             String source = Files.readString(path);
             SourceManager sourceManager = new SourceManager(source);
 
+            // 2. Lex
             Lexer lexer = new Lexer(source, file.getPath(), sourceManager);
             List<Token> tokens = lexer.tokenizeSourceCode();
 
+            // 3. Parse
             Parser parser = new Parser(tokens, path, sourceManager);
             ProgramNode program = parser.parseProgram();
 
-            System.out.println("Parsed successfully.");
+            // 4. Type check
+            TypeChecker checker = new TypeChecker();
+            checker.check(program);
+
+            // 5. Transpile
+            JavaTranspiler transpiler = new JavaTranspiler();
+            String javaCode = transpiler.transpile(program);
+
+            // 6. Write output
+            Path out = Path.of("Main.java");
+            Files.writeString(out, javaCode);
+
+            System.out.println("Build successful → Main.java generated");
 
         } catch (RuntimeException e) {
             throw e;

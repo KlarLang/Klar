@@ -1,6 +1,7 @@
 package org.klang.cli.error;
 
-import org.klang.core.error.KException;
+import org.klang.core.errors.KException;
+
 import picocli.CommandLine;
 
 public class KlangExceptionHandler implements CommandLine.IExecutionExceptionHandler {

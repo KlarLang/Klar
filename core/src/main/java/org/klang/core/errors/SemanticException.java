@@ -1,7 +1,7 @@
-package org.klang.core.error;
+package org.klang.core.errors;
 
-import org.klang.core.diagnostic.DiagnosticCode;
-import org.klang.core.diagnostic.DiagnosticColors;
+import org.klang.core.diagnostics.DiagnosticCode;
+import org.klang.core.diagnostics.DiagnosticColors;
 
 public final class SemanticException extends KException {
 

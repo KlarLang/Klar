@@ -1,4 +1,4 @@
-package org.klang.core.diagnostic;
+package org.klang.core.diagnostics;
 
 /**
  * Sistema modular de cores para diagnósticos da Klang.

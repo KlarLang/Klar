@@ -11,7 +11,8 @@ public final class Heddle {
         TokenType.DOUBLE,
         TokenType.BOOLEAN,
         TokenType.CHARACTER_TYPE,
-        TokenType.STRING_TYPE
+        TokenType.STRING_TYPE,
+        TokenType.VOID
     );
 
     public static final EnumSet<TokenType> COMPARISION_OPERATORS = EnumSet.of(

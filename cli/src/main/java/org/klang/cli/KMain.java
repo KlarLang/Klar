@@ -2,7 +2,8 @@ package org.klang.cli;
 
 import org.klang.cli.error.KlangExceptionHandler;
 import org.klang.cli.error.KlangParameterExceptionHandler;
-import org.klang.core.error.KException;
+import org.klang.core.errors.KException;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -16,7 +17,9 @@ import picocli.CommandLine.Option;
         LexCommand.class,
         GenerateCompletion.class,
         HelpCommand.class,
-        ParseCommand.class
+        ParseCommand.class,
+        BuildCommand.class,
+        RunCommand.class
     }
 )
 public class KMain implements Runnable {

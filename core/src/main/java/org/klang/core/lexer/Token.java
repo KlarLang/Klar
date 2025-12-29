@@ -32,6 +32,10 @@ public class Token {
     }
 
     public String getValue(){
+        if (value == null){
+            return "";
+        }
+        
         return value;
     }
 
@@ -41,6 +45,10 @@ public class Token {
 
     public int getColumn() {
         return column;
+    }
+
+    public boolean isVoid(){
+        return this == null;
     }
 
     @Override

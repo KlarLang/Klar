@@ -1,6 +1,6 @@
-package org.klang.core.error;
+package org.klang.core.errors;
 
-import org.klang.core.diagnostic.DiagnosticCode;
+import org.klang.core.diagnostics.DiagnosticCode;
 
 public abstract class KException extends RuntimeException {
 

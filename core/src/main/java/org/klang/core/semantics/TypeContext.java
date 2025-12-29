@@ -14,8 +14,9 @@ public class TypeContext {
 
     public void declare(String name, Type type) {
         if (symbols.containsKey(name)) {
-            throw new RuntimeException("");
+            throw new RuntimeException("Em declare, symbols ja tem a chave " + name);
         }
+
         symbols.put(name, type);
     }
 

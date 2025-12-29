@@ -2,7 +2,7 @@ package org.klang.cli.error;
 
 import org.klang.cli.error.diagnostic.KcDiagnosticCode;
 import org.klang.cli.error.diagnostic.KcDiagnosticColors;
-import org.klang.core.diagnostic.DiagnosticColors;
+import org.klang.core.diagnostics.DiagnosticColors;
 
 public class KcMissingFileException extends KcCliException {
     public KcMissingFileException(KcDiagnosticCode code, String command, String fix){

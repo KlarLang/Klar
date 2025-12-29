@@ -11,7 +11,8 @@ import java.util.List;
 
 import org.klang.cli.error.KcInvalidFileType;
 import org.klang.cli.error.diagnostic.KcDiagnosticCode;
-import org.klang.core.error.KException;
+import org.klang.core.errors.KException;
+import org.klang.core.errors.SourceManager;
 import org.klang.core.lexer.Lexer;
 import org.klang.core.lexer.Token;
 
@@ -41,7 +42,9 @@ public class LexCommand implements Runnable {
 
         try {
             String source = Files.readString(path);
-            Lexer lexer = new Lexer(source, file.getPath());
+            SourceManager sourceManager = new SourceManager(source);
+
+            Lexer lexer = new Lexer(source, file.getPath(), sourceManager);
             List<Token> a = lexer.tokenizeSourceCode();
 
             if (showTokens){

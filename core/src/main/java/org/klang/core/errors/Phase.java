@@ -1,4 +1,4 @@
-package org.klang.core.error;
+package org.klang.core.errors;
 
 public enum Phase {
     LEXICAL,

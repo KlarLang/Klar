@@ -57,15 +57,12 @@ public final class TokenFactory {
             case SEMICOLON:
             case COLON:
             case DOT:
-            case INCREMENT:
-            case DECREMENT:
             case LTE:
             case GTE:
             case DOUBLEEQUAL:
             case NOTEQUAL:
             case AND:
             case OR:
-            case ARROW:
             case AT:
             case EOF:
                 return true;

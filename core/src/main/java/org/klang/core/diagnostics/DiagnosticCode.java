@@ -1,6 +1,6 @@
-package org.klang.core.diagnostic;
+package org.klang.core.diagnostics;
 
-import org.klang.core.error.Phase;
+import org.klang.core.errors.Phase;
 
 public enum DiagnosticCode {
     E001("InvalidCharacter", Phase.LEXICAL),
@@ -9,8 +9,10 @@ public enum DiagnosticCode {
 
     E101("InvalidNumber", Phase.SYNTAX),
     E102("MissingStatementTerminator", Phase.SYNTAX),
-    E103("MultiCharacterOfTypeCharacter", Phase.SYNTAX),
-
+    E103("MissingType", Phase.SYNTAX),
+    E104("MultiCharacterOfTypeCharacter", Phase.SYNTAX),
+    E105("MissingSizeArray", Phase.SYNTAX),
+    
     E201("UnknownTypeIdentifier", Phase.SEMANTIC);
 
     public final String name;
