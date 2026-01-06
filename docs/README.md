@@ -125,12 +125,14 @@ integer y = 20;
 public integer calculateSum(integer a, integer b) {
     return a + b;
 }
+```
 
 CLI usage (debug-oriented at this stage):
 
+```bash
 kc lex example.k
 kc parse example.k
-
+```
 
 ---
 
