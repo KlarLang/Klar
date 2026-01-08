@@ -1,6 +1,8 @@
 package org.klang.core.transpilers;
 
 
+import java.util.stream.Collectors;
+
 import org.klang.core.lexer.Token;
 import org.klang.core.parser.ast.AssignmentStatementNode;
 import org.klang.core.parser.ast.AstNode;
@@ -34,7 +36,6 @@ public class JavaTranspiler {
     private final JavaEmitter out = new JavaEmitter();
     private final JavaContext context = new JavaContext();
     private final TypeChecker t = new TypeChecker();
-    private final StringBuilder sb = new StringBuilder();
     private final String fileName;
 
     public JavaTranspiler(String fileName){
@@ -106,18 +107,9 @@ public class JavaTranspiler {
             return;
         }
 
-        if (stmt instanceof IndexExpressionNode i){
-            transpileIndexExpr(i);
-            return;
-        }
-
         throw new RuntimeException(
             "Unsupported top-level statement: " + stmt.getClass().getSimpleName()
         );
-    }
-
-    private void transpileIndexExpr(IndexExpressionNode i){
-        out.emitLine(transpileExpression(i) + i.target + "[" + transpileExpression(i.index) + "]");
     }
 
     private void transpileArrayDecl(NewArrayExpressionNode n){
@@ -253,6 +245,10 @@ public class JavaTranspiler {
             };
         }
 
+        if (e instanceof IndexExpressionNode i) {
+            return transpileExpression(i.target) + "[" + transpileExpression(i.index) + "]";
+        }
+
         if (e instanceof VariableExpressionNode v ){
             return v.name.getValue();
         }
@@ -269,20 +265,16 @@ public class JavaTranspiler {
             if (ce.callee.getValue().equals("print")) {
                 return "System.out.print(" + transpileExpression(ce.arguments.get(0)) + ")";
             }
-            
-            sb.setLength(0);
 
-            sb.append(ce.callee.getValue()).append("(");
-
-            for (int i = 0; i < ce.arguments.size(); i++) {
-                if (i > 0){
-                    sb.append(", ");
-                }
-                sb.append(transpileExpression(ce.arguments.get(i)));
+            if (ce.callee.getValue().equals("printf")) {
+                return "System.out.printf(" + transpileExpression(ce.arguments.get(0)) + ")";
             }
-            
-            sb.append(")");
-            return sb.toString();
+
+            String args = ce.arguments.stream()
+            .map(this::transpileExpression)
+            .collect(Collectors.joining(", "));
+
+            return ce.callee.getValue() + "(" + args + ")";
         }
 
         throw new RuntimeException("Unsupported expression in transpiler");
