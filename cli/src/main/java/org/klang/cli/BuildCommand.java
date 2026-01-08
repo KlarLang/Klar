@@ -77,7 +77,7 @@ public class BuildCommand implements Runnable {
             checker.check(program);
 
             // 5. Transpile
-            JavaTranspiler transpiler = new JavaTranspiler(fileName);
+            JavaTranspiler transpiler = new JavaTranspiler(fileName, sourceManager, path);
             String javaCode = transpiler.transpile(program);
 
             // 6. Write output

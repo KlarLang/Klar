@@ -1,8 +1,10 @@
 package org.klang.core.transpilers;
 
 
+import java.nio.file.Path;
 import java.util.stream.Collectors;
 
+import org.klang.core.errors.SourceManager;
 import org.klang.core.lexer.Token;
 import org.klang.core.parser.ast.AssignmentStatementNode;
 import org.klang.core.parser.ast.AstNode;
@@ -33,13 +35,19 @@ import org.klang.core.semantics.PrimitiveTypeSymbol;
 import org.klang.core.semantics.Type;
 
 public class JavaTranspiler {
+    private final SourceManager sm;
+    private final Path path;
     private final JavaEmitter out = new JavaEmitter();
     private final JavaContext context = new JavaContext();
-    private final TypeChecker t = new TypeChecker(null, null);
+    private final TypeChecker t;;
     private final String fileName;
 
-    public JavaTranspiler(String fileName){
+    public JavaTranspiler(String fileName, SourceManager sm, Path path){
         this.fileName = fileName;
+        this.sm = sm;
+        this.path = path;
+
+        this.t = new TypeChecker(sm, path);
     }
 
     public String transpile(ProgramNode program){
