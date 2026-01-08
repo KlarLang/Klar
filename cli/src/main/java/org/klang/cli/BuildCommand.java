@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.klang.cli.error.KcInvalidFileType;
 import org.klang.cli.error.diagnostic.KcDiagnosticCode;
+import org.klang.cli.utils.BuildCache;
 import org.klang.core.errors.SourceManager;
 import org.klang.core.lexer.Lexer;
 import org.klang.core.lexer.Token;
@@ -30,17 +31,35 @@ public class BuildCommand implements Runnable {
     @Override
     public void run() {
         Path path = file.toPath();
+        
+        String _fileName = path.getFileName().toString(); 
+        String fileName = _fileName.substring(0, _fileName.length() - 2);
 
-        if (!path.getFileName().toString().endsWith(".k")) {
+        if (!_fileName.endsWith(".k")) {
             throw new KcInvalidFileType(
                 KcDiagnosticCode.KC002,
                 "build",
                 null,
-                path.getFileName().toString()
+                _fileName
             );
         }
 
         try {
+            Path outDir = Path.of("out");
+            Path cacheDir = outDir.resolve(".cache");
+            Files.createDirectories(cacheDir);
+
+            Path cacheFile = cacheDir.resolve(fileName + ".hash");
+            Path outputFile = outDir.resolve(fileName + ".java");
+
+            // Verificar se precisa rebuildar
+            if (!BuildCache.needsRebuild(path, cacheFile)) {
+                System.out.println("✓ " + fileName + ".java is up to date (skipping build)");
+                return;
+            }
+
+            System.out.println("Building " + fileName + ".k...");
+
             // 1. Read
             String source = Files.readString(path);
             SourceManager sourceManager = new SourceManager(source);
@@ -58,18 +77,19 @@ public class BuildCommand implements Runnable {
             checker.check(program);
 
             // 5. Transpile
-            JavaTranspiler transpiler = new JavaTranspiler();
+            JavaTranspiler transpiler = new JavaTranspiler(fileName);
             String javaCode = transpiler.transpile(program);
 
             // 6. Write output
-            Path out = Path.of("Main.java");
-            Files.writeString(out, javaCode);
+            Files.writeString(outputFile, javaCode);
 
-            System.out.println("Build successful → Main.java generated");
+            // 7. Salvar hash para próxima vez
+            BuildCache.saveHash(path, cacheFile);
+
+            System.out.println("✓ Build successful → " + fileName + ".java generated");
 
         } catch (RuntimeException e) {
             throw e;
-
         } catch (Exception e) {
             throw new RuntimeException("Internal compiler error", e);
         }

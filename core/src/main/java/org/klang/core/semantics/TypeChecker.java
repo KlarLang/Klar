@@ -50,7 +50,7 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < node.arguments.size(); i++) {
-            TypeSymbol arg = checkExpression(node.arguments.get(i), ctx);
+            TypeSymbol arg = checkExpression(node.arguments.get(i), ctx, ExpressionContext.ARGUMENT);
             TypeSymbol param = fn.parameters.get(i);
 
             if (!isAssignable(arg, param)) {
@@ -68,7 +68,7 @@ public class TypeChecker {
 
         if (node instanceof ConstantDeclarationNode c) {
             TypeSymbol declared = resolveTypeSymbol(c.type);
-            TypeSymbol value = checkExpression(c.value, ctx);
+            TypeSymbol value = checkExpression(c.value, ctx, ExpressionContext.ASSIGNMENT);
 
             if (!isAssignable(value, declared)) {
                 error("Cannot assign " + value + " to constant " + declared, node);
@@ -88,7 +88,7 @@ public class TypeChecker {
 
         if (node instanceof VariableDeclarationNode v) {
             TypeSymbol declared = resolveTypeSymbol(v.type);
-            TypeSymbol value = checkExpression(v.value, ctx);
+            TypeSymbol value = checkExpression(v.value, ctx, ExpressionContext.ASSIGNMENT);
 
             if (!isAssignable(value, declared)) {
                 error("Cannot assign " + value + " to " + declared, node);
@@ -105,7 +105,7 @@ public class TypeChecker {
                 error("Cannot assign to constant", node);
             }
 
-            TypeSymbol value = checkExpression(a.value, ctx);
+            TypeSymbol value = checkExpression(a.value, ctx, ExpressionContext.ASSIGNMENT);
 
             if (!isAssignable(value, target)) {
                 error("Type mismatch: expected " + target + ", got " + value, node);
@@ -115,7 +115,7 @@ public class TypeChecker {
         }
 
         if (node instanceof ExpressionStatementNode e) {
-            checkExpression(e.expression, ctx);
+            checkExpression(e.expression, ctx, ExpressionContext.GENERAL);
             return;
         }
 
@@ -133,7 +133,7 @@ public class TypeChecker {
         }
 
         if (node instanceof WhileStatementNode w) {
-            TypeSymbol cond = checkExpression(w.condition, ctx);
+            TypeSymbol cond = checkExpression(w.condition, ctx, ExpressionContext.CONDITION);
 
             if (!(cond instanceof PrimitiveTypeSymbol p) || p.type != Type.BOOLEAN) {
                 error("while condition must be boolean", node);
@@ -157,7 +157,7 @@ public class TypeChecker {
     }
 
     public void checkDecision(DecisionStatementNode d, TypeContext ctx) {
-        TypeSymbol cond = checkExpression(d.condition, ctx);
+        TypeSymbol cond = checkExpression(d.condition, ctx, ExpressionContext.CONDITION);
 
         if (!(cond instanceof PrimitiveTypeSymbol p) || p.type != Type.BOOLEAN) {
             error("if condition must be boolean", d);
@@ -166,7 +166,7 @@ public class TypeChecker {
         checkStatement(d.ifBlock, new TypeContext(ctx));
 
         for (OtherwiseBranchNode o : d.otherwiseBranches) {
-            TypeSymbol oCond = checkExpression(o.condition, ctx);
+            TypeSymbol oCond = checkExpression(o.condition, ctx, ExpressionContext.CONDITION);
 
             if (!(oCond instanceof PrimitiveTypeSymbol p2) || p2.type != Type.BOOLEAN) {
                 error("otherwise condition must be boolean", d);
@@ -214,7 +214,7 @@ public class TypeChecker {
             error("Non-void function must return a value", node);
         }
 
-        TypeSymbol value = checkExpression(node.value, ctx);
+        TypeSymbol value = checkExpression(node.value, ctx, ExpressionContext.RETURN);
 
         if (!isAssignable(value, currentReturnType)) {
             error("Return type mismatch: expected "
@@ -222,31 +222,34 @@ public class TypeChecker {
         }
     }
 
-    public TypeSymbol checkExpression(ExpressionNode node, TypeContext ctx) {
-
+    public TypeSymbol checkExpression(ExpressionNode node, TypeContext ctx, ExpressionContext context) {
         if (node instanceof LiteralExpressionNode l) {
-            /*
-            if (l.value.type == TokenType.NUMBER){
+            if (l.value.type == TokenType.INTEGER_LITERAL){
                 String v = l.value.getValue();
                 
-                if (!(v.equals("0") || v.equals("1"))){
+                boolean isAllowed = context == ExpressionContext.ASSIGNMENT || context == ExpressionContext.GENERAL;
+                if (!(v.equals("0") || v.equals("1")) && !isAllowed){
                     error(
-                        "Numeric literal '" + v +
-                        "' is not allowed (no magic numbers in K)",
-                        node
+                        "Magic Number '" + v + "' is not allowed on this context", node
                     );
                 }
                 
                 
-                return new PrimitiveTypeSymbol(Type.INTEGER);
+                return new PrimitiveTypeSymbol(Type.INTEGER, true);
             }
-            if (l.value.type == TokenType.DOUBLE){
-                error(
-                    "Decimal literals are not allowed directly (assign to variable first)",
-                    node
-                );
+
+            // DOUBLE
+            if (l.value.type == TokenType.DOUBLE_LITERAL) {
+
+                if (context != ExpressionContext.ASSIGNMENT && context != ExpressionContext.RETURN) {
+                    error(
+                        "Decimal literal must be assigned to a variable before use",
+                        node
+                    );
+                }
+            
+                return new PrimitiveTypeSymbol(Type.DOUBLE, true);
             }
-            */
             
             
             return resolveLiteral(l.value);
@@ -266,7 +269,7 @@ public class TypeChecker {
             // Verificar size (se existir)
             Integer declaredSize = null;
             if (n.size != null) {
-                TypeSymbol sizeType = checkExpression(n.size, ctx);
+                TypeSymbol sizeType = checkExpression(n.size, ctx, ExpressionContext.ARRAY_SIZE);
             
                 if (!(sizeType instanceof PrimitiveTypeSymbol p)
                     || p.type != Type.INTEGER) {
@@ -285,7 +288,7 @@ public class TypeChecker {
                 }
             
                 for (ExpressionNode expr : n.initializer) {
-                    TypeSymbol value = checkExpression(expr, ctx);
+                    TypeSymbol value = checkExpression(expr, ctx, ExpressionContext.Array_INIT);
                 
                     if (!arr.isAssignableFrom(value)) {
                         error(
@@ -305,7 +308,6 @@ public class TypeChecker {
                 }
             }
         
-            // 4️⃣ Regra nº1 da K
             if (n.size == null && n.initializer == null) {
                 error("Array must be explicitly initialized", node);
             }
@@ -313,10 +315,9 @@ public class TypeChecker {
             return base;
         }
 
-
         if (node instanceof IndexExpressionNode i) {
-            TypeSymbol target = checkExpression(i.target, ctx);
-            TypeSymbol index  = checkExpression(i.index, ctx);
+            TypeSymbol target = checkExpression(i.target, ctx, ExpressionContext.INDEX);
+            TypeSymbol index  = checkExpression(i.index, ctx, ExpressionContext.INDEX);
             ArrayTypeSymbol arr = null;
 
             if (!(target instanceof ArrayTypeSymbol a)) {
@@ -330,7 +331,7 @@ public class TypeChecker {
                 error("Array index must be integer", node);
             }
         
-            return new PrimitiveTypeSymbol(arr.elementType);
+            return new PrimitiveTypeSymbol(arr.elementType, false);
         }
 
         if (node instanceof VariableExpressionNode v) {
@@ -346,54 +347,72 @@ public class TypeChecker {
         }
 
         error("Unsupported expression", node);
-        return new PrimitiveTypeSymbol(Type.UNKNOWN);
+        return new PrimitiveTypeSymbol(Type.UNKNOWN, false);
     }
 
     public TypeSymbol checkBinary(BinaryExpressionNode node, TypeContext ctx) {
-        TypeSymbol left = checkExpression(node.left, ctx);
-        TypeSymbol right = checkExpression(node.right, ctx);
+        TypeSymbol left = checkExpression(node.left, ctx, ExpressionContext.GENERAL);
+        TypeSymbol right = checkExpression(node.right, ctx, ExpressionContext.GENERAL);
 
-        return switch (node.operator.getType()) {
-            case DOUBLEEQUAL, NOTEQUAL ->
-                new PrimitiveTypeSymbol(Type.BOOLEAN);
-
+        switch (node.operator.getType()) {
             case PLUS -> {
                 if (left.isString() || right.isString()) {
-                    yield new PrimitiveTypeSymbol(Type.STRING);
+                    return new PrimitiveTypeSymbol(Type.STRING, true);
                 }
-                if (left.equals(right)) {
-                    yield left;
+
+                if (left.isNumeric() && right.isNumeric()) {
+                    if (left.isDouble() || right.isDouble()) {
+                        return new PrimitiveTypeSymbol(Type.DOUBLE, true);
+                    }
+                    return new PrimitiveTypeSymbol(Type.INTEGER, true);
                 }
+
                 error("Invalid operands for '+'", node);
-                yield new PrimitiveTypeSymbol(Type.UNKNOWN);
+            }
+
+            case MINUS, MULTIPLY, DIVISION, REMAINDER -> {
+                if (left.isNumeric() && right.isNumeric()) {
+                    if (left.isDouble() || right.isDouble()) {
+                        return new PrimitiveTypeSymbol(Type.DOUBLE, true);
+                    }
+                    return new PrimitiveTypeSymbol(Type.INTEGER, true);
+                }
+                error("Invalid operands for arithmetic operation", node);
+            }
+
+            case DOUBLEEQUAL, NOTEQUAL -> {
+                return new PrimitiveTypeSymbol(Type.BOOLEAN, true);
             }
 
             default -> {
                 if (!left.equals(right)) {
                     error("Type mismatch in binary expression", node);
                 }
-                yield left;
+                return left;
             }
-        };
+        }
+
+        throw new IllegalStateException("Unreachable binary expression");
     }
+
 
     public TypeSymbol resolveLiteral(Token token) {
         return switch (token.type) {
-            case NUMBER -> new PrimitiveTypeSymbol(Type.INTEGER);
-            case DOUBLE -> new PrimitiveTypeSymbol(Type.DOUBLE);
-            case TRUE, FALSE -> new PrimitiveTypeSymbol(Type.BOOLEAN);
-            case STRING_LITERAL -> new PrimitiveTypeSymbol(Type.STRING);
-            case CHARACTER_LITERAL -> new PrimitiveTypeSymbol(Type.CHARACTER);
-            case NULL -> new PrimitiveTypeSymbol(Type.NULL);
-            default -> new PrimitiveTypeSymbol(Type.UNKNOWN);
+            case NUMBER -> new PrimitiveTypeSymbol(Type.INTEGER, true);
+            case DOUBLE_LITERAL -> new PrimitiveTypeSymbol(Type.DOUBLE, true);
+            case TRUE, FALSE -> new PrimitiveTypeSymbol(Type.BOOLEAN, true);
+            case STRING_LITERAL -> new PrimitiveTypeSymbol(Type.STRING, true);
+            case CHARACTER_LITERAL -> new PrimitiveTypeSymbol(Type.CHARACTER, true);
+            case NULL -> new PrimitiveTypeSymbol(Type.NULL, false);
+            default -> new PrimitiveTypeSymbol(Type.UNKNOWN, false);
         };
     }
 
     public TypeSymbol resolveTypeSymbol(TypeReferenceNode node) {
         Type base = switch (node.getBaseType().getType()) {
-            case INTEGER -> Type.INTEGER;
-            case DOUBLE -> Type.DOUBLE;
-            case BOOLEAN -> Type.BOOLEAN;
+            case INTEGER_TYPE -> Type.INTEGER;
+            case DOUBLE_TYPE -> Type.DOUBLE;
+            case BOOLEAN_TYPE -> Type.BOOLEAN;
             case STRING_TYPE -> Type.STRING;
             case CHARACTER_TYPE -> Type.CHARACTER;
             case VOID -> Type.VOID;
@@ -404,11 +423,20 @@ public class TypeChecker {
             return new ArrayTypeSymbol(base);
         }
 
-        return new PrimitiveTypeSymbol(base);
+        return new PrimitiveTypeSymbol(base, true);
     }
 
     public boolean isAssignable(TypeSymbol from, TypeSymbol to) {
-        return from.isAssignableFrom(from);
+        // UNKNOWN accepts any type (wildcard)
+        if (to instanceof PrimitiveTypeSymbol p && p.type == Type.UNKNOWN) {
+            return true;
+        }
+
+        if (from.isInteger() && to.isDouble()){
+            return true;
+        }
+
+        return to.isAssignableFrom(from);
     }
 
     private boolean isCompileTimeConstant(ExpressionNode node) {
@@ -428,7 +456,7 @@ public class TypeChecker {
             return ctx.resolve(v.name.getValue());
         }
         error("Invalid assignment target", node);
-        return new PrimitiveTypeSymbol(Type.UNKNOWN);
+        return new PrimitiveTypeSymbol(Type.UNKNOWN, false);
     }
 
     public void error(String msg, AstNode node) {

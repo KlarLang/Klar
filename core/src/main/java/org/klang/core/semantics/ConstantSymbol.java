@@ -1,5 +1,7 @@
 package org.klang.core.semantics;
 
+import org.klang.core.Heddle;
+
 public final class ConstantSymbol implements TypeSymbol {
     public final TypeSymbol type;
 
@@ -15,6 +17,57 @@ public final class ConstantSymbol implements TypeSymbol {
     @Override
     public boolean isString() {
         return type.isString();  // Delegate to wrapped type
+    }
+
+    @Override
+    public boolean isNumeric() {
+        if (type instanceof PrimitiveTypeSymbol t){
+            return t.isNumeric();
+        }
+
+        if (type instanceof ConstantSymbol t){
+            return t.isNumeric();
+        }
+
+        if (type instanceof ArrayTypeSymbol t){
+            return t.isNumeric();
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isInteger() {
+        if (type instanceof PrimitiveTypeSymbol t){
+            return t.isInteger();
+        }
+
+        if (type instanceof ConstantSymbol t){
+            return t.isInteger();
+        }
+
+        if (type instanceof ArrayTypeSymbol t){
+            return t.isInteger();
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isDouble() {
+        if (type instanceof PrimitiveTypeSymbol t){
+            return t.isDouble();
+        }
+
+        if (type instanceof ConstantSymbol t){
+            return t.isDouble();
+        }
+
+        if (type instanceof ArrayTypeSymbol t){
+            return t.isDouble();
+        }
+
+        return false;
     }
 
     @Override

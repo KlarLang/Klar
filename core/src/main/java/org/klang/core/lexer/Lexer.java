@@ -10,6 +10,22 @@ import org.klang.core.errors.LexicalException;
 import org.klang.core.errors.SourceLocation;
 import org.klang.core.errors.SourceManager;
 
+/**
+ * Lexical Analyzer (Lexer) for the Klang programming language.
+ * * <p>The Lexer is the first phase of the compiler pipeline. It takes the raw source code
+ * as input and breaks it down into a sequence of atomic units called {@link Token}s.
+ * This process is known as tokenization or lexical analysis.</p>
+ * * <p>Key responsibilities of this Lexer:</p>
+ * <ul>
+ * <li><strong>Tokenization:</strong> Converts character streams into meaningful tokens (Identifiers, Keywords, Literals, Operators).</li>
+ * <li><strong>Whitespace Handling:</strong> Skips insignificant whitespace and tracks line/column numbers for error reporting.</li>
+ * <li><strong>Comment Handling:</strong> Ignores both single-line ({@code //}) and multi-line ({@code /* ... *&#47;}) comments.</li>
+ * <li><strong>Syntax Enforcement:</strong> Enforces Klang-specific lexical rules, such as prohibiting C-style increment/decrement operators ({@code ++}, {@code --}) and logical operators ({@code &&}, {@code ||}) in favor of Klang's idiomatic syntax.</li>
+ * <li><strong>String Interning:</strong> Uses a symbol table to canonicalize identifiers, reducing memory usage.</li>
+ * </ul>
+ * * @author Lucas Paulino Da Silva (~K')
+ * @since 0.1
+ */
 public class Lexer {
     
     private int position = 0;
@@ -32,6 +48,13 @@ public class Lexer {
 
     private final Map<String, String> symbolTable = new HashMap<>(512, 0.75f);
 
+    /**
+     * Constructs a new Lexer instance.
+     *
+     * @param source The raw source code string to be analyzed.
+     * @param filePath The path to the file being processed (used for error reporting).
+     * @param sourceManager The manager responsible for handling source context and diagnostics.
+     */
     public Lexer(String source, String filePath, SourceManager sourceManager) {
         this.source = source;
         this.filePath = filePath;
@@ -40,12 +63,20 @@ public class Lexer {
         this.length = input.length;
 
         this.sourceManager = sourceManager;
+        // Optimization: Estimate token count to avoid frequent array resizing
         int estimedTokens = Math.max(16, source.length() / 4);
         this.tokens = new ArrayList<>(estimedTokens);
 
         initialzerhashMapTokensTypes();
     }
 
+    /**
+     * Canonicalizes identifier strings using a symbol table (String Interning).
+     * * <p>This ensures that identical identifiers share the same String instance in memory,
+     * which optimizes memory usage and speeds up equality checks in later stages of compilation.</p>
+     * * @param s The string to canonicalize.
+     * @return The canonical instance of the string.
+     */
     private String canonical(String s){
         String existing = symbolTable.get(s);
 
@@ -58,12 +89,24 @@ public class Lexer {
 
     }
 
+    /**
+     * Performs the main tokenization loop.
+     * * <p>Scans the input character by character until the End Of File (EOF) is reached.
+     * It delegates specific patterns (strings, numbers, identifiers) to specialized methods
+     * and handles single-character tokens and operators directly.</p>
+     * * <p>This method explicitly validates and rejects C-style operators that are not supported
+     * in Klang (e.g., {@code ++}, {@code --}, {@code &&}, {@code ||}), providing helpful
+     * diagnostic messages suggesting the correct Klang alternatives.</p>
+     * * @return A list of tokens representing the source code.
+     * @throws LexicalException if an invalid character or malformed literal is encountered.
+     */
     public List<Token> tokenizeSourceCode() {
         this.stringBuilder.setLength(0);
         while (!isAtEnd()) {
 
             char c = peek();
 
+            // Handle Whitespace
             if (Character.isWhitespace(c)) {
                 advance();
 
@@ -75,6 +118,7 @@ public class Lexer {
                 continue;
             }
 
+            // Handle String Literals
             if (c == '"') {
                 int startLine = this.line;
                 int startColumn = this.position; 
@@ -91,6 +135,7 @@ public class Lexer {
                 continue;
             }
 
+            // Handle Character Literals
             if (c == '\'') {
                 advance();
 
@@ -104,6 +149,7 @@ public class Lexer {
                 continue;
             }
 
+            // Handle Identifiers and Keywords
             if (Character.isLetter(c) || c == '_' || c == '$') {
 
                 if (c == '$' && !(Character.isLetter(peekNext()) || peekNext() == '_')) {
@@ -129,12 +175,21 @@ public class Lexer {
                 continue;
             }
 
+            // Handle Numbers
             if (Character.isDigit(c)) {
-                String num = readNumber();
-                tokens.add(new Token(TokenType.NUMBER, num, line, position));
+                String[] data = readNumber();
+                String num = data[0];
+
+                if (data[1].equals("true")){
+                    tokens.add(new Token(TokenType.DOUBLE_LITERAL, num, line, position));
+                } else {
+                    tokens.add(new Token(TokenType.INTEGER_LITERAL, num, line, position));
+                }
+
                 continue;
             }
 
+            // Handle Comments (Single-line)
             if (peek() == '/' && peekNext() == '/') {
                 advance();
                 advance();
@@ -146,6 +201,7 @@ public class Lexer {
                 continue;
             }
 
+            // Handle Comments (Multi-line)
             if (peek() == '/' && peekNext() == '*') {
                 advance();
                 advance();
@@ -169,6 +225,7 @@ public class Lexer {
                 continue;
             }
 
+            // Handle Operators and Symbols
             TokenType tokenType = c < 128 ? singleCharTokens[c] : null;
             this.stringBuilder.setLength(0);
             switch (c) {
@@ -357,6 +414,15 @@ public class Lexer {
         return tokens;
     }
 
+    /**
+     * Reads a string literal from the input.
+     * * <p>Handles escape sequences (e.g., {@code \n}, {@code \t}, {@code \"}) and checks for
+     * unclosed strings or line breaks within the string (which are not allowed in Klang).</p>
+     * * @param startLine The line number where the string started.
+     * @param startColumn The column number where the string started.
+     * @return The content of the string literal.
+     * @throws LexicalException if the string is unclosed or contains invalid escapes.
+     */
     private String readString(int startLine, int startColumn) {
         this.stringBuilder.setLength(0);
         this.stringBuilder.append("\"");
@@ -396,13 +462,13 @@ public class Lexer {
                 char escaped = advance();
 
                 if (escaped == 'n') {
-                    this.stringBuilder.append('\n');
+                    this.stringBuilder.append("\\n");
                 } else if (escaped == 't') {
-                    this.stringBuilder.append('\t');
+                    this.stringBuilder.append("\\t");
                 } else if (escaped == '"') {
                     this.stringBuilder.append('"');
                 } else if (escaped == '\\') {
-                    this.stringBuilder.append('\\');
+                    this.stringBuilder.append("\\");
                 } else {
                     int errorLength = this.stringBuilder.length();
 
@@ -431,6 +497,13 @@ public class Lexer {
         return null;
     }
 
+    /**
+     * Reads a character literal from the input.
+     * * <p>Ensures the literal contains exactly one character. Handles escape sequences
+     * within character literals (e.g., {@code '\n'}).</p>
+     * * @return The string representation of the character literal.
+     * @throws LexicalException if the literal is empty, contains multiple characters, or is unclosed.
+     */
     private String readCharacter() {
         this.stringBuilder.setLength(0);
         this.stringBuilder.append("\'");
@@ -538,6 +611,12 @@ public class Lexer {
         return value;
     }   
 
+    /**
+     * Reads an identifier or keyword from the input.
+     * * <p>Scans alphanumeric characters and underscores. The resulting string is
+     * canonicalized to optimize storage.</p>
+     * * @return The scanned identifier string.
+     */
     private String readIdentifier() {
         int start = position;
         advance();
@@ -552,14 +631,25 @@ public class Lexer {
         return canonical(ident);
     }
 
-    private String readNumber() {
+    /**
+     * Reads a numeric literal (integer or floating point) from the input.
+     * * <p>Validates that the number is not immediately followed by letters, which would
+     * indicate a malformed identifier or invalid syntax.</p>
+     * * @return The string representation of the number.
+     * @throws LexicalException if the number format is invalid.
+     */
+    private String[] readNumber() {
         this.stringBuilder.setLength(0);
+        String isDouble = "false";
+
+        this.stringBuilder.append(advance());
 
         while (Character.isDigit(peek())) {
             this.stringBuilder.append(advance());
         }
 
         if (peek() == '.' && Character.isDigit(peekNext())) {
+            isDouble = "true";
             this.stringBuilder.append(advance());
 
             while (Character.isDigit(peek())) {
@@ -584,8 +674,10 @@ public class Lexer {
                     example, null, (errorLenth));
         }
 
-        return this.stringBuilder.toString();
+        return new String[]{this.stringBuilder.toString(), isDouble};
     }
+
+    // Utility methods
 
     private boolean isAtEnd() {
         return position >= this.length;
@@ -632,6 +724,15 @@ public class Lexer {
         return true;
     }
 
+    /**
+     * Reports a lexical error using the SourceManager.
+     * * @param code The diagnostic error code.
+     * @param cause The cause of the error.
+     * @param fix A suggested fix for the user.
+     * @param example An example of correct usage.
+     * @param note Additional notes or context.
+     * @param lenth The length of the erroneous segment for highlighting.
+     */
     private void lexicalError(
             DiagnosticCode code,
             String cause,
@@ -651,6 +752,9 @@ public class Lexer {
             lenth);
     }
 
+    /**
+     * Initializes the lookup tables for keywords and single-character tokens.
+     */
     private void initialzerhashMapTokensTypes() {
         // Keywords
         tokensTypeByString.put("return", TokenType.RETURN);
@@ -663,11 +767,11 @@ public class Lexer {
         tokensTypeByString.put("protected", TokenType.PROTECTED);
         tokensTypeByString.put("true", TokenType.TRUE);
         tokensTypeByString.put("false", TokenType.FALSE);
-        tokensTypeByString.put("integer", TokenType.INTEGER);
+        tokensTypeByString.put("integer", TokenType.INTEGER_TYPE);
         tokensTypeByString.put("try", TokenType.TRY);
         tokensTypeByString.put("catch", TokenType.CATCH);
-        tokensTypeByString.put("double", TokenType.DOUBLE);
-        tokensTypeByString.put("boolean", TokenType.BOOLEAN);
+        tokensTypeByString.put("double", TokenType.DOUBLE_TYPE);
+        tokensTypeByString.put("boolean", TokenType.BOOLEAN_TYPE);
         tokensTypeByString.put("character", TokenType.CHARACTER_TYPE);
         tokensTypeByString.put("void", TokenType.VOID);
         tokensTypeByString.put("null", TokenType.NULL);

@@ -1,10 +1,14 @@
 package org.klang.core.semantics;
 
+import org.klang.core.Heddle;
+
 public final class PrimitiveTypeSymbol implements TypeSymbol {
     public final Type type;
+    public boolean isLiteral;
 
-    public PrimitiveTypeSymbol(Type type) {
+    public PrimitiveTypeSymbol(Type type, boolean isLiteral) {
         this.type = type;
+        this.isLiteral = isLiteral;
     }
 
     @Override
@@ -19,6 +23,21 @@ public final class PrimitiveTypeSymbol implements TypeSymbol {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean isDouble() {
+        return type == Type.DOUBLE;
+    }
+
+    @Override
+    public boolean isInteger() {
+        return type == Type.INTEGER;
+    }
+    
+    @Override
+    public boolean isNumeric() {
+        return Heddle.NUMERICS.contains(type);
     }
 
     @Override

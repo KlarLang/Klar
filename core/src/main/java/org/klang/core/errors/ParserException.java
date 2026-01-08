@@ -4,6 +4,7 @@ import org.klang.core.diagnostics.DiagnosticCode;
 import org.klang.core.diagnostics.DiagnosticColors;
 
 public class ParserException extends KException {
+    private final String expected;
 
     public ParserException(
             DiagnosticCode code,
@@ -11,16 +12,19 @@ public class ParserException extends KException {
             String[] contextLines,
             String cause,
             String fix,
+            String expected,
             String example,
             String note,
             int length) {
         super(code, location, contextLines, cause, fix, example, note, length);
-    }
+        this.expected = expected;
+      }
 
     @Override
     public String format() {
         StringBuilder sb = new StringBuilder();
 
+        // header
         sb.append(DiagnosticColors.structure("[K:"))
           .append(DiagnosticColors.errorCode(code.name()))
           .append(DiagnosticColors.structure("] "))
@@ -38,7 +42,7 @@ public class ParserException extends KException {
           .append(DiagnosticColors.structure(String.valueOf(location.column())))
           .append("\n\n");
 
-        
+        // context
         int errorLine = location.line();
         int maxLineDigitWidth = String.valueOf(errorLine).length();
         
@@ -63,6 +67,7 @@ public class ParserException extends KException {
             }
         }
         
+        // cause
         sb.append("\n");
         sb.append(DiagnosticColors.structure("Cause:"))
           .append("\n  ")
@@ -74,6 +79,15 @@ public class ParserException extends KException {
           .append("\n  ")
           .append(DiagnosticColors.neutral(fix))
           .append("\n");
+
+        if (expected != null){
+          sb.append("\n");
+          sb.append(DiagnosticColors.structure("Expected:"))
+          .append("\n  '")
+          .append(DiagnosticColors.neutral(expected))
+          .append("'\n");
+        }
+
 
         if (example != null) {
             sb.append("\n");
