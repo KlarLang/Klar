@@ -35,7 +35,11 @@ public class JavaTranspiler {
     private final JavaContext context = new JavaContext();
     private final TypeChecker t = new TypeChecker();
     private final StringBuilder sb = new StringBuilder();
+    private final String fileName;
 
+    public JavaTranspiler(String fileName){
+        this.fileName = fileName;
+    }
 
     public String transpile(ProgramNode program){
         emitHeader();
@@ -49,7 +53,7 @@ public class JavaTranspiler {
     }
 
     public void emitHeader(){
-        out.emit("public class Main");
+        out.emit("public class " + fileName);
         out.openBlock();
     }
 
@@ -241,7 +245,7 @@ public class JavaTranspiler {
                 case TRUE -> "true";
                 case FALSE -> "false";
                 case STRING_LITERAL -> l.value.getValue();
-                case NUMBER -> l.value.getValue();
+                case INTEGER_LITERAL, DOUBLE_LITERAL -> l.value.getValue();
                 case NULL -> "null";
                 default -> throw new RuntimeException(
                     "Unsupported literal: " + l.value.getType()
@@ -286,9 +290,9 @@ public class JavaTranspiler {
 
     private String javaType(TypeReferenceNode type){
         String base = switch (type.getBaseType().getType()) {
-            case INTEGER -> "int";
-            case DOUBLE -> "double";
-            case BOOLEAN -> "boolean";
+            case INTEGER_TYPE -> "int";
+            case DOUBLE_TYPE -> "double";
+            case BOOLEAN_TYPE -> "boolean";
             case STRING_TYPE -> "String";
             case CHARACTER_TYPE -> "char";
             case VOID -> "void";

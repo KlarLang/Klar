@@ -6,4 +6,7 @@ public sealed interface TypeSymbol
     boolean isAssignableFrom(TypeSymbol other);
     boolean isString();
     boolean isReference();
+    boolean isNumeric();
+    boolean isDouble();
+    boolean isInteger();
 }

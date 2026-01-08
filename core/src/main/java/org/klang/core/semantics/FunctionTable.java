@@ -8,8 +8,8 @@ public class FunctionTable {
     private final Map<String, FunctionSymbol> functions = new HashMap<>(20);
 
     public FunctionTable(){
-        TypeSymbol returnT = new PrimitiveTypeSymbol(Type.VOID);
-        List<TypeSymbol> argsT = List.of(new PrimitiveTypeSymbol(Type.UNKNOWN));
+        TypeSymbol returnT = new PrimitiveTypeSymbol(Type.VOID, false);
+        List<TypeSymbol> argsT = List.of(new PrimitiveTypeSymbol(Type.UNKNOWN, false));
 
         declare(
             new FunctionSymbol(

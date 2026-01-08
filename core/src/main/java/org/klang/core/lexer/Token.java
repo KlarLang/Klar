@@ -1,5 +1,7 @@
 package org.klang.core.lexer;
 
+import org.klang.core.Heddle;
+
 public class Token {
     public final TokenType type;
     public final String value;
@@ -49,6 +51,10 @@ public class Token {
 
     public boolean isVoid(){
         return this == null;
+    }
+
+    public boolean isArithmetic(){
+        return Heddle.TERM_OPERATORS.contains(type);
     }
 
     @Override

@@ -135,6 +135,7 @@ config/local.yml
 # Permite distribuições específicas do Gradle
 !cli/build/distributions/*.zip
 !cli/build/distributions/*.tar
+!*.k
 
 # ---------------------------
 # KLANG-SPECIFIC
@@ -146,5 +147,5 @@ gc*
 allo*
 *.jfr
 klang-*
-teste.sh
-codigo_fonte.java
+run*
+klang-commit_log.txt

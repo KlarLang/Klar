@@ -12,7 +12,10 @@ public enum DiagnosticCode {
     E103("MissingType", Phase.SYNTAX),
     E104("MultiCharacterOfTypeCharacter", Phase.SYNTAX),
     E105("MissingSizeArray", Phase.SYNTAX),
+    E106("MissingArraySize", Phase.SYNTAX),
+    E107("MissingCharacter", Phase.SYNTAX),
     
+
     E201("UnknownTypeIdentifier", Phase.SEMANTIC);
 
     public final String name;

@@ -1,5 +1,7 @@
 package org.klang.core.semantics;
 
+import org.klang.core.Heddle;
+
 public final class ArrayTypeSymbol implements TypeSymbol {
     public final Type elementType;
 
@@ -19,6 +21,21 @@ public final class ArrayTypeSymbol implements TypeSymbol {
     public boolean isReference() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public boolean isInteger() {
+        return elementType == Type.INTEGER;
+    }
+
+    @Override
+    public boolean isDouble() {
+        return elementType == Type.DOUBLE;
+    }
+
+    @Override
+    public boolean isNumeric() {
+        return Heddle.NUMERICS.contains(elementType);
     }
 
     @Override
