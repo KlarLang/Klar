@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 
 import org.klang.cli.error.KcInvalidFileType;
 import org.klang.cli.error.diagnostic.KcDiagnosticCode;
@@ -75,7 +74,7 @@ public class RunCommand implements Runnable {
                 ProgramNode program = parser.parseProgram();
             
                 // 4. Type Checker
-                TypeChecker checker = new TypeChecker();
+                TypeChecker checker = new TypeChecker(sm, path);
                 checker.check(program);
             
                 // 5. Transpile

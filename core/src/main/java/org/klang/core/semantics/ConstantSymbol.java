@@ -1,7 +1,5 @@
 package org.klang.core.semantics;
 
-import org.klang.core.Heddle;
-
 public final class ConstantSymbol implements TypeSymbol {
     public final TypeSymbol type;
 

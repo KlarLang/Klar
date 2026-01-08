@@ -8,43 +8,45 @@ public class FunctionTable {
     private final Map<String, FunctionSymbol> functions = new HashMap<>(20);
 
     public FunctionTable(){
-        TypeSymbol returnT = new PrimitiveTypeSymbol(Type.VOID, false);
-        List<TypeSymbol> argsT = List.of(new PrimitiveTypeSymbol(Type.UNKNOWN, false));
+        // Define 'void' e 'any' (UNKNOWN)
+        TypeSymbol returnVoid = new PrimitiveTypeSymbol(Type.VOID, false);
+        // UNKNOWN aqui funciona como um "Object" ou "Any", aceitando qualquer coisa
+        List<TypeSymbol> argsAny = List.of(new PrimitiveTypeSymbol(Type.UNKNOWN, false));
 
-        declare(
-            new FunctionSymbol(
-                "println",
-                returnT,
-                argsT
-            )
-        );
-
-        declare(new FunctionSymbol("printf", returnT, argsT));
-
-        declare(
-            new FunctionSymbol(
-                "print",
-                returnT,
-                argsT
-            )
-        );
+        // Registra funções nativas
+        internalDeclare(new FunctionSymbol("println", returnVoid, argsAny));
+        internalDeclare(new FunctionSymbol("print", returnVoid, argsAny));
+        internalDeclare(new FunctionSymbol("printf", returnVoid, argsAny));
     }
 
-    public void declare(FunctionSymbol fn){
-        if (functions.containsKey(fn.name)){
-            throw new RuntimeException("Function " + fn.name + " already declared.");
-        }
-
+    /**
+     * Declaração interna para o construtor (sem verificações)
+     */
+    private void internalDeclare(FunctionSymbol fn) {
         functions.put(fn.name, fn);
     }
 
-    public FunctionSymbol resolve(String fn){
-        FunctionSymbol function = functions.get(fn);
-
-        if (function == null){
-            throw new RuntimeException("Function " + fn + " not declared.");
+    /**
+     * Tenta declarar uma função.
+     * @return true se declarou, false se já existia (colisão).
+     */
+    public boolean declare(FunctionSymbol fn){
+        if (functions.containsKey(fn.name)){
+            return false;
         }
+        functions.put(fn.name, fn);
+        return true;
+    }
 
-        return function;
+    /**
+     * Busca uma função.
+     * @return O símbolo da função ou null se não encontrar.
+     */
+    public FunctionSymbol resolve(String name){
+        return functions.get(name);
+    }
+
+    public boolean contains(String name) {
+        return functions.containsKey(name);
     }
 }

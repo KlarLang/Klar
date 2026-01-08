@@ -12,10 +12,10 @@ import org.klang.core.errors.SourceManager;
 
 /**
  * Lexical Analyzer (Lexer) for the Klang programming language.
- * * <p>The Lexer is the first phase of the compiler pipeline. It takes the raw source code
+ * <p>The Lexer is the first phase of the compiler pipeline. It takes the raw source code
  * as input and breaks it down into a sequence of atomic units called {@link Token}s.
  * This process is known as tokenization or lexical analysis.</p>
- * * <p>Key responsibilities of this Lexer:</p>
+ * <p>Key responsibilities of this Lexer:</p>
  * <ul>
  * <li><strong>Tokenization:</strong> Converts character streams into meaningful tokens (Identifiers, Keywords, Literals, Operators).</li>
  * <li><strong>Whitespace Handling:</strong> Skips insignificant whitespace and tracks line/column numbers for error reporting.</li>
@@ -23,7 +23,7 @@ import org.klang.core.errors.SourceManager;
  * <li><strong>Syntax Enforcement:</strong> Enforces Klang-specific lexical rules, such as prohibiting C-style increment/decrement operators ({@code ++}, {@code --}) and logical operators ({@code &&}, {@code ||}) in favor of Klang's idiomatic syntax.</li>
  * <li><strong>String Interning:</strong> Uses a symbol table to canonicalize identifiers, reducing memory usage.</li>
  * </ul>
- * * @author Lucas Paulino Da Silva (~K')
+ * @author Lucas Paulino Da Silva (~K')
  * @since 0.1
  */
 public class Lexer {
@@ -72,9 +72,9 @@ public class Lexer {
 
     /**
      * Canonicalizes identifier strings using a symbol table (String Interning).
-     * * <p>This ensures that identical identifiers share the same String instance in memory,
+     * <p>This ensures that identical identifiers share the same String instance in memory,
      * which optimizes memory usage and speeds up equality checks in later stages of compilation.</p>
-     * * @param s The string to canonicalize.
+     * @param s The string to canonicalize.
      * @return The canonical instance of the string.
      */
     private String canonical(String s){
@@ -86,18 +86,17 @@ public class Lexer {
 
         symbolTable.put(s, s);
         return s;
-
     }
 
     /**
      * Performs the main tokenization loop.
-     * * <p>Scans the input character by character until the End Of File (EOF) is reached.
+     * <p>Scans the input character by character until the End Of File (EOF) is reached.
      * It delegates specific patterns (strings, numbers, identifiers) to specialized methods
      * and handles single-character tokens and operators directly.</p>
-     * * <p>This method explicitly validates and rejects C-style operators that are not supported
+     * <p>This method explicitly validates and rejects C-style operators that are not supported
      * in Klang (e.g., {@code ++}, {@code --}, {@code &&}, {@code ||}), providing helpful
      * diagnostic messages suggesting the correct Klang alternatives.</p>
-     * * @return A list of tokens representing the source code.
+     * @return A list of tokens representing the source code.
      * @throws LexicalException if an invalid character or malformed literal is encountered.
      */
     public List<Token> tokenizeSourceCode() {
@@ -109,19 +108,17 @@ public class Lexer {
             // Handle Whitespace
             if (Character.isWhitespace(c)) {
                 advance();
-
                 if (c == '\n') {
                     line++;
                     column = 0;
                 }
-
                 continue;
             }
 
             // Handle String Literals
             if (c == '"') {
                 int startLine = this.line;
-                int startColumn = this.position; 
+                int startColumn = this.column; // Captura coluna inicial
 
                 advance();
 
@@ -130,13 +127,14 @@ public class Lexer {
                         TokenType.STRING_LITERAL,
                         content,
                         line,
-                        position));
+                        startColumn)); // CORREÇÃO: Usa startColumn, não position
 
                 continue;
             }
 
             // Handle Character Literals
             if (c == '\'') {
+                int startColumn = this.column; // Captura coluna inicial
                 advance();
 
                 String content = readCharacter();
@@ -144,22 +142,25 @@ public class Lexer {
                         TokenType.CHARACTER_LITERAL,
                         content,
                         line,
-                        position));
+                        startColumn)); // CORREÇÃO: Usa startColumn, não position
 
                 continue;
             }
 
             // Handle Identifiers and Keywords
             if (Character.isLetter(c) || c == '_' || c == '$') {
-
+                int startColumn = this.column; // Captura coluna inicial
+                
                 if (c == '$' && !(Character.isLetter(peekNext()) || peekNext() == '_')) {
-                    String example = "integer $variableName = 10;"; 
+                    String example = "integer $validName = 10; // ok\n integer $ = 10; // invalid"; 
 
                     lexicalError(
                             DiagnosticCode.E001,
-                            "The character '$' cannot start an identifier alone.",
-                            "Identifiers starting with '$' must contain a letter or underscore.",
-                            example, null, 1);
+                            "Invalid identifier format.",
+                            "Identifiers starting with '$' must be followed by a letter or underscore.",
+                            example, 
+                            null, 
+                            1);
                 }
 
                 String ident = readIdentifier();
@@ -167,9 +168,9 @@ public class Lexer {
                 TokenType tokenType = tokensTypeByString.getOrDefault(ident, TokenType.IDENTIFIER);
 
                 if (tokenType == TokenType.IDENTIFIER) {
-                    tokens.add(new Token(tokenType, ident, line, position));
+                    tokens.add(new Token(tokenType, ident, line, startColumn));
                 } else {
-                    tokens.add(new Token(tokenType, line, position));
+                    tokens.add(new Token(tokenType, line, startColumn));
                 }
 
                 continue;
@@ -177,13 +178,14 @@ public class Lexer {
 
             // Handle Numbers
             if (Character.isDigit(c)) {
+                int startColumn = this.column; // Captura coluna inicial
                 String[] data = readNumber();
                 String num = data[0];
 
                 if (data[1].equals("true")){
-                    tokens.add(new Token(TokenType.DOUBLE_LITERAL, num, line, position));
+                    tokens.add(new Token(TokenType.DOUBLE_LITERAL, num, line, startColumn));
                 } else {
-                    tokens.add(new Token(TokenType.INTEGER_LITERAL, num, line, position));
+                    tokens.add(new Token(TokenType.INTEGER_LITERAL, num, line, startColumn));
                 }
 
                 continue;
@@ -226,29 +228,28 @@ public class Lexer {
             }
 
             // Handle Operators and Symbols
+            // CRUCIAL: Captura a coluna ANTES de avançar no switch
+            int tokenStart = this.column;
             TokenType tokenType = c < 128 ? singleCharTokens[c] : null;
             this.stringBuilder.setLength(0);
+            
             switch (c) {
                 case '@':
                     advance();
-                    tokens.add(TokenFactory.simple(TokenType.AT, line, column));
-
+                    tokens.add(TokenFactory.simple(TokenType.AT, line, tokenStart));
                     continue;
 
                 case '=':
                     advance();
-
                     if (match('=')) {
-                        tokens.add(TokenFactory.simple(TokenType.DOUBLEEQUAL, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.DOUBLEEQUAL, line, tokenStart));
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.ASSIGNMENT, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.ASSIGNMENT, line, tokenStart));
                     }
-
                     continue;
 
                 case '+':
                     advance();
-
                     this.stringBuilder.append('+');
                     if (peek() == '+') {
                         while (peek() == '+') {
@@ -257,27 +258,24 @@ public class Lexer {
                         
                         lexicalError(
                             DiagnosticCode.E001,
-                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
-                            "Increment is not valid in K, increment manually.",
-                            "integer varialeToIncrement = 0;\n  varialeToIncrement = varialeToIncrement + 1;",
-                        null ,this.stringBuilder.length());
+                            "Unsupported operator '" + this.stringBuilder.toString() + "'.",
+                            "The increment operator '++' is not supported in K. Use explicit assignment.",
+                            "x = x + 1;",
+                            "K favors explicit modification over implicit increment effects.", 
+                            this.stringBuilder.length());
 
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.PLUS, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.PLUS, line, tokenStart));
                     }
-
                     continue;
 
                 case '.':
                     advance();
-
-                    tokens.add(TokenFactory.simple(TokenType.DOT, line, column));
-
+                    tokens.add(TokenFactory.simple(TokenType.DOT, line, tokenStart));
                     continue;
 
                 case '-':
                     advance();
-                    
                     if (peek() == '-') {
                         this.stringBuilder.append('-');
                         while (peek() == '-') {
@@ -286,10 +284,12 @@ public class Lexer {
                         
                         lexicalError(
                             DiagnosticCode.E001,
-                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
-                            "Decrement is not valid in K, decrement manually.",
-                            "integer varialeToDecrement = 1;\n  varialeToDecrement = varialeToDecrement - 1;",
-                        null ,this.stringBuilder.length());
+                            "Unsupported operator '" + this.stringBuilder.toString() + "'.",
+                            "The decrement operator '--' is not supported in K. Use explicit assignment.",
+                            "x = x - 1;",
+                            "K favors explicit modification over implicit decrement effects.",
+                            this.stringBuilder.length());
+                            
                     } else if (peek() == '>') {
                         this.stringBuilder.append('>');
                         while (peek() == '-' || peek() == '>') {
@@ -298,14 +298,14 @@ public class Lexer {
                         
                         lexicalError(
                             DiagnosticCode.E001,
-                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
-                            "Remove this.",
+                            "Invalid operator sequence '" + this.stringBuilder.toString() + "'.",
+                            "This sequence is not recognized as a valid operator.",
                             null,
-                        null ,this.stringBuilder.length());
+                            null, 
+                            this.stringBuilder.length());
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.MINUS, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.MINUS, line, tokenStart));
                     }
-
                     continue;
 
                 case '*':
@@ -319,47 +319,41 @@ public class Lexer {
                         
                         lexicalError(
                             DiagnosticCode.E001,
-                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
-                            "Use Mathematics.power() for logical AND.",
-                            "double powerResult = Mathematics.power(variableAPotentize);",
-                        null ,this.stringBuilder.length());
+                            "Unsupported operator '" + this.stringBuilder.toString() + "'.",
+                            "The power operator '**' is not supported.",
+                            "double res = Mathematics.power(base, exponent);",
+                            "Use the standard Mathematics library for exponentiation.",
+                            this.stringBuilder.length());
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.MULTIPLY, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.MULTIPLY, line, tokenStart));
                     }
-
                     continue;
 
                 case '>':
                     advance();
-
                     if (match('=')) {
-                        tokens.add(TokenFactory.simple(TokenType.GTE, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.GTE, line, tokenStart));
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.GT, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.GT, line, tokenStart));
                     }
-
                     continue;
 
                 case '<':
                     advance();
-
                     if (match('=')) {
-                        tokens.add(TokenFactory.simple(TokenType.LTE, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.LTE, line, tokenStart));
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.LT, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.LT, line, tokenStart));
                     }
-
                     continue;
 
                 case '!':
                     advance();
-
                     if (match('=')) {
-                        tokens.add(TokenFactory.simple(TokenType.NOTEQUAL, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.NOTEQUAL, line, tokenStart));
                     } else {
-                        tokens.add(TokenFactory.simple(TokenType.BANG, line, column));
+                        tokens.add(TokenFactory.simple(TokenType.BANG, line, tokenStart));
                     }
-
                     continue;
 
                 case '&':
@@ -372,10 +366,11 @@ public class Lexer {
 
                     lexicalError(
                             DiagnosticCode.E001,
-                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
-                            "Use 'and' for logical AND.",
-                            "if (firstCondition and secondCondition) {\n\tprintln(\"The first and second conditions are in agreement.\")\n  }",
-                        null ,this.stringBuilder.length());
+                            "Unsupported operator '" + this.stringBuilder.toString() + "'.",
+                            "Use the keyword 'and' for logical conjunction.",
+                            "if (isValid and isReady) { ... }",
+                            "K uses readable keywords ('and', 'or') instead of C-style symbols.", 
+                            this.stringBuilder.length());
                     break;
 
                 case '|':
@@ -388,24 +383,27 @@ public class Lexer {
 
                     lexicalError(
                             DiagnosticCode.E001,
-                            "This '"+  this.stringBuilder.toString() + "' is not valid.",
-                            "Use 'or' for logical OR.",
-                            "if (firstCondition or secondCondition) {\n\tprintln(\"The first and second conditions are in agreement.\")\n  }",
-                        null, this.stringBuilder.length());
+                            "Unsupported operator '" + this.stringBuilder.toString() + "'.",
+                            "Use the keyword 'or' for logical disjunction.",
+                            "if (isA or isB) { ... }",
+                            "K uses readable keywords ('and', 'or') instead of C-style symbols.", 
+                            this.stringBuilder.length());
                     break;
             }
 
             if (tokenType == null) {
                 lexicalError(
                         DiagnosticCode.E001,
-                        "Character '" + c + "' is not valid in Klang.",
-                        "Remove or replace it.",
-                        null, null,
+                        "Unexpected character '" + c + "'.",
+                        "Remove or replace this character.",
+                        null, 
+                        "This character is not valid in the source code context.",
                         1
                     );
             }
 
-            tokens.add(TokenFactory.simple(tokenType, line, position));
+            // CORREÇÃO: Usa tokenStart aqui também, pois é um singleCharToken
+            tokens.add(TokenFactory.simple(tokenType, line, tokenStart));
             advance();
         }
 
@@ -416,9 +414,9 @@ public class Lexer {
 
     /**
      * Reads a string literal from the input.
-     * * <p>Handles escape sequences (e.g., {@code \n}, {@code \t}, {@code \"}) and checks for
+     * <p>Handles escape sequences (e.g., {@code \n}, {@code \t}, {@code \"}) and checks for
      * unclosed strings or line breaks within the string (which are not allowed in Klang).</p>
-     * * @param startLine The line number where the string started.
+     * @param startLine The line number where the string started.
      * @param startColumn The column number where the string started.
      * @return The content of the string literal.
      * @throws LexicalException if the string is unclosed or contains invalid escapes.
@@ -440,23 +438,24 @@ public class Lexer {
 
                 lexicalError(
                         DiagnosticCode.E002,
-                        "String literal cannot span multiple lines.",
-                        "Close the string before the line break.",
-                        example, null, errorLength
-
+                        "Unterminated string literal.",
+                        "String literals cannot span multiple lines. Close the string before the line break.",
+                        example, 
+                        null, 
+                        errorLength
                 );
             }
 
             if (c == '\\') {
-
                 if (isAtEnd()) {
                     int errorLength = this.stringBuilder.length();
-
                     lexicalError(
                             DiagnosticCode.E002,
-                            "Unclosed string literal.",
-                            "Add closing quote.",
-                            example, null, errorLength);
+                            "Unterminated string literal at EOF.",
+                            "Add a closing quote '\"' to the string.",
+                            example, 
+                            null, 
+                            errorLength);
                 }
 
                 char escaped = advance();
@@ -473,35 +472,36 @@ public class Lexer {
                     int errorLength = this.stringBuilder.length();
 
                     lexicalError(
-                            DiagnosticCode.E004,
-                            "Invalid escape sequence: \\" + escaped,
-                            "Use valid escapes like \\n, \\t, \\\".", example, null, errorLength
-
+                            DiagnosticCode.E001,
+                            "Invalid escape sequence '\\" + escaped + "'.",
+                            "Use valid escape sequences like \\n, \\t, \\\", or \\\\.", 
+                            example, 
+                            null, 
+                            errorLength
                     );
                 }
-
                 continue;
             }
-
             this.stringBuilder.append(c);
         }
 
         int errorLength = this.stringBuilder.length();
         lexicalError(
                 DiagnosticCode.E002,
-                "Unclosed string literal.",
-                "Add closing quote.",
-                example, null, errorLength
-
+                "Unterminated string literal.",
+                "Add a closing quote '\"' before the end of the file.",
+                example, 
+                null, 
+                errorLength
         );
         return null;
     }
 
     /**
      * Reads a character literal from the input.
-     * * <p>Ensures the literal contains exactly one character. Handles escape sequences
+     * <p>Ensures the literal contains exactly one character. Handles escape sequences
      * within character literals (e.g., {@code '\n'}).</p>
-     * * @return The string representation of the character literal.
+     * @return The string representation of the character literal.
      * @throws LexicalException if the literal is empty, contains multiple characters, or is unclosed.
      */
     private String readCharacter() {
@@ -511,13 +511,12 @@ public class Lexer {
         int errorLength = 1;
         
         if (isAtEnd()) {
-            String example = "\'x\'";
-            
+            String example = "\'c\'";
             advance();
             lexicalError(
-                DiagnosticCode.E004,
-                "Unclosed character literal.",
-                "Add closing '.",
+                DiagnosticCode.E104,
+                "Unclosed character literal at EOF.",
+                "Add a closing single quote \"'\" .",
                 example,  
                 null, 
                 errorLength);
@@ -529,15 +528,14 @@ public class Lexer {
         if (c == '\\') {
             if (isAtEnd()) {
                 String example = "\'\\n\'";
-
                 advance();
                 lexicalError(
-                    DiagnosticCode.E004,
-                    "Unclosed character literal.",
-                    "Add closing '.",
+                    DiagnosticCode.E104,
+                    "Unclosed character literal escape.",
+                    "Complete the escape sequence and close the quote.",
                     example, 
                     null, 
-                    errorLength+2);
+                    errorLength + 2);
             }
 
             char escaped = advance();
@@ -552,11 +550,10 @@ public class Lexer {
                 value = "\\\\";
             } else {
                 String example = "'\\n'";
-
                 lexicalError(
-                    DiagnosticCode.E004,
-                    "Invalid escape in character literal: \\" + escaped,
-                    "Use valid escapes.",
+                    DiagnosticCode.E001,
+                    "Invalid escape sequence in character literal: \\" + escaped,
+                    "Use valid escapes like \\n, \\t, \\', or \\\\.",
                     example, 
                     null,  
                     errorLength);
@@ -568,13 +565,12 @@ public class Lexer {
         }
 
         if (isAtEnd()) {
-            String example = "character charVariable = '" + value + "';";
-
+            String example = "character c = '" + value + "';";
             advance();
             lexicalError(
-                DiagnosticCode.E004,
+                DiagnosticCode.E104,
                 "Unclosed character literal.",
-                "Add closing '.",
+                "Add a closing single quote \"'\".",
                 example,
                 null, 
                 1);
@@ -591,20 +587,18 @@ public class Lexer {
             String allChars = this.stringBuilder.toString();
             errorLength = allChars.length();
 
-            String example = "character charVariable = '" + value + "';\n" +
-                            "// or\n" +
-                            "  String stringVariable = \"" + allChars + "\";";
+            String example = "String s = \"" + allChars + "\"; // Use double quotes for strings";
 
             lexicalError(
-                DiagnosticCode.E103,
-                "Character literal can only contain one character.",
-                "Remove extra characters or use a string literal.",
+                DiagnosticCode.E104,
+                "Invalid character literal length.",
+                "Character literals must contain exactly one character. Use double quotes for strings.",
                 example,
-                "Furthermore, character types can only have one character",
+                "Type 'character' holds a single Unicode code point.",
                 errorLength);
         }
 
-        advance();
+        advance(); // Consume closing '
         c += '\'';
         value = String.valueOf(c);
         
@@ -613,9 +607,9 @@ public class Lexer {
 
     /**
      * Reads an identifier or keyword from the input.
-     * * <p>Scans alphanumeric characters and underscores. The resulting string is
+     * <p>Scans alphanumeric characters and underscores. The resulting string is
      * canonicalized to optimize storage.</p>
-     * * @return The scanned identifier string.
+     * @return The scanned identifier string.
      */
     private String readIdentifier() {
         int start = position;
@@ -633,9 +627,9 @@ public class Lexer {
 
     /**
      * Reads a numeric literal (integer or floating point) from the input.
-     * * <p>Validates that the number is not immediately followed by letters, which would
+     * <p>Validates that the number is not immediately followed by letters, which would
      * indicate a malformed identifier or invalid syntax.</p>
-     * * @return The string representation of the number.
+     * @return The string representation of the number.
      * @throws LexicalException if the number format is invalid.
      */
     private String[] readNumber() {
@@ -658,7 +652,7 @@ public class Lexer {
         }
 
         if (Character.isLetter(peek())) {
-            String example = "integer numberVariable = " + this.stringBuilder.toString() + ";";
+            String example = "integer n = " + this.stringBuilder.toString() + ";";
 
             this.stringBuilder.setLength(0);
             while (!isAtEnd() && Character.isLetter(peek())){
@@ -669,9 +663,11 @@ public class Lexer {
 
             lexicalError(
                     DiagnosticCode.E101,
-                    "Invalid numeric literal.",
-                    "Numbers cannot be followed by letters.",
-                    example, null, (errorLenth));
+                    "Malformed numeric literal.",
+                    "Numbers cannot be immediately followed by letters.",
+                    example, 
+                    "Separate the number and the identifier with whitespace or an operator.", 
+                    (errorLenth));
         }
 
         return new String[]{this.stringBuilder.toString(), isDouble};
@@ -686,20 +682,15 @@ public class Lexer {
     private char peek() {
         if (isAtEnd()) {
             return '\0';
-
         }
-
         return this.input[position];
     }
 
     private char peekNext() {
         int next = position + 1;
-
         if (next >= this.length) {
             return '\0';
-
         }
-
         return this.input[next];
     }
 
@@ -711,22 +702,19 @@ public class Lexer {
     }
 
     private boolean match(char expected) {
-
         if (isAtEnd()) {
             return false;
         }
-
         if (peek() != expected) {
             return false;
         }
-
         advance();
         return true;
     }
 
     /**
      * Reports a lexical error using the SourceManager.
-     * * @param code The diagnostic error code.
+     * @param code The diagnostic error code.
      * @param cause The cause of the error.
      * @param fix A suggested fix for the user.
      * @param example An example of correct usage.

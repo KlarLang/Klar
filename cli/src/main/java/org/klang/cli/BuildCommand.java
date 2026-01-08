@@ -73,7 +73,7 @@ public class BuildCommand implements Runnable {
             ProgramNode program = parser.parseProgram();
 
             // 4. Type check
-            TypeChecker checker = new TypeChecker();
+            TypeChecker checker = new TypeChecker(sourceManager, path);
             checker.check(program);
 
             // 5. Transpile

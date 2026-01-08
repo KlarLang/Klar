@@ -35,7 +35,7 @@ import org.klang.core.semantics.Type;
 public class JavaTranspiler {
     private final JavaEmitter out = new JavaEmitter();
     private final JavaContext context = new JavaContext();
-    private final TypeChecker t = new TypeChecker();
+    private final TypeChecker t = new TypeChecker(null, null);
     private final String fileName;
 
     public JavaTranspiler(String fileName){

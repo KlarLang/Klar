@@ -1,12 +1,13 @@
 package org.klang.core.semantics;
 
 public enum ExpressionContext {
-    ASSIGNMENT,
-    CONDITION,
-    ARGUMENT,
-    RETURN,
-    INDEX,
     GENERAL,
-    Array_INIT,
-    ARRAY_SIZE
+    ASSIGNMENT,     
+    INITIALIZATION, 
+    CONDITION,      
+    ARGUMENT,       
+    ARRAY_SIZE,     
+    ARRAY_INIT,
+    RETURN,
+    INDEX           
 }
