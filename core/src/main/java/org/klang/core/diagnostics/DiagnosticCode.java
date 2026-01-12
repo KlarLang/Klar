@@ -12,9 +12,10 @@ import org.klang.core.errors.Phase;
  */
 public enum DiagnosticCode {
     // --- Lexical Errors (000 - 099) ---
+    E000("ExpectedCharacter", Phase.LEXICAL),
     E001("UnexpectedCharacter", Phase.LEXICAL),
     E002("UnterminatedString", Phase.LEXICAL),
-    
+
     // --- Syntax Errors (100 - 199) ---
     E101("InvalidNumericLiteral", Phase.SYNTAX),
     E102("MissingSemicolon", Phase.SYNTAX),
@@ -29,7 +30,7 @@ public enum DiagnosticCode {
     E111("MisplacedAfterall", Phase.SYNTAX),
     E112("MissingAccessModifier", Phase.SYNTAX),
     E113("MissingAnnotation", Phase.SYNTAX),
-    
+
     // --- Semantic Errors (200 - 299) ---
     E201("UnknownType", Phase.SEMANTIC),
     E202("MultipleReturnStatements", Phase.SEMANTIC),

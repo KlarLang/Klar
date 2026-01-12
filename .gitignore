@@ -140,13 +140,11 @@ config/local.yml
 # ---------------------------
 # KLANG-SPECIFIC
 # ---------------------------
-*.kc
-*.ko
+#*.kc
+#*.ko
 
 gc*
 allo*
 *.jfr
-klang-*
 run*
-gerar_tudao*
-klang-commit_log.txt
+gerar_tudao.sh

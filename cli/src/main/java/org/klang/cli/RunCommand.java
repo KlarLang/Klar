@@ -21,10 +21,7 @@ import org.klang.core.parser.ast.ProgramNode;
 import org.klang.core.semantics.TypeChecker;
 import org.klang.core.transpilers.JavaTranspiler;
 
-@Command(
-    name = "run",
-    description = "Transpile, compile and run a Klang program"
-)
+@Command(name = "run", description = "Transpile, compile and run a Klang program")
 public class RunCommand implements Runnable {
 
     @Parameters(paramLabel = "FILE")
@@ -33,90 +30,89 @@ public class RunCommand implements Runnable {
     @Override
     public void run() {
         Path path = file.toPath();
-    
+
         if (!path.getFileName().toString().endsWith(".k")) {
             throw new KcInvalidFileType(
-                KcDiagnosticCode.KC002,
-                "run",
-                null,
-                path.getFileName().toString()
-            );
+                    KcDiagnosticCode.KC002,
+                    "run",
+                    null,
+                    path.getFileName().toString());
         }
-    
-        String _fileName = path.getFileName().toString(); 
+
+        String _fileName = path.getFileName().toString();
         String fileName = _fileName.substring(0, _fileName.length() - 2);
-        
+
         try {
             Path outDir = Path.of("out");
             Path cacheDir = outDir.resolve(".cache");
             Files.createDirectories(cacheDir);
-        
+
             Path cacheFile = cacheDir.resolve(fileName + ".hash");
             Path javaFile = outDir.resolve((fileName + ".java"));
             Path classFile = outDir.resolve(fileName + ".class");
-        
+
             // Verificar se precisa recompilar (CORRIGIDO AQUI)
             boolean needsRebuild = BuildCache.needsRebuild(path, cacheFile) || !Files.exists(classFile);
-            
+
             if (needsRebuild) {
-                System.out.println("Building " + fileName + ".k...");
-            
+                // System.out.println("Building " + fileName + ".k...");
+
                 // 1. Read
                 String source = Files.readString(path);
                 SourceManager sm = new SourceManager(source);
-            
-                // 2. Lexer 
+
+                // 2. Lexer
                 Lexer lexer = new Lexer(source, file.getPath(), sm);
                 List<Token> tokens = lexer.tokenizeSourceCode();
-            
+
                 // 3. Parse
                 Parser parser = new Parser(tokens, path, sm);
                 ProgramNode program = parser.parseProgram();
-            
+
                 // 4. Type Checker
                 TypeChecker checker = new TypeChecker(sm, path);
                 checker.check(program);
-            
+
                 // 5. Transpile
                 JavaTranspiler transpiler = new JavaTranspiler(fileName, sm, path);
                 String javaCode = transpiler.transpile(program);
-            
+
                 // 6. Write Java file
                 Files.writeString(javaFile, javaCode);
-            
+
                 // 7. Compile
-                System.out.println("Compiling Java code...");
+                // System.out.println("Compiling Java code...");
+                // System.out.println("\n");
                 Process javac = new ProcessBuilder(
-                    "javac", 
-                    "-d", outDir.toString(),
-                    javaFile.toString()
-                ).inheritIO().start();
-            
+                        "javac",
+                        "-d", outDir.toString(),
+                        javaFile.toString()).inheritIO().start();
+
                 if (javac.waitFor() != 0) {
                     throw new RuntimeException("Java compilation failed");
                 }
-            
+
                 // Verificar se o .class foi gerado
                 if (!Files.exists(classFile)) {
                     throw new RuntimeException(".class file was not generated at: " + classFile);
                 }
-            
+
                 // 8. Save hash
                 BuildCache.saveHash(path, cacheFile);
-                
-                System.out.println("✓ Build successful");
+
+                // System.out.println("✓ Build successful");
             } else {
-                System.out.println("✓ " + fileName + " is up to date (skipping build)");
+                System.out.println("✓ " + fileName + " is up to date (skipping build)\n");
             }
-        
+            // System.out.println("\n");
+
             // 9. Execute (sempre executa, mesmo se não recompilou)
             Process java = new ProcessBuilder(
-                "java", "-cp", outDir.toAbsolutePath().toString(), fileName
-            ).inheritIO().start();
-        
+                    "java", "-cp", outDir.toAbsolutePath().toString(), fileName).inheritIO().start();
+
             int exitCode = java.waitFor();
-            System.err.println("Program exited with code: " + exitCode);
-        
+            System.err.println("\nProgram exited with code: " + exitCode);
+
         } catch (KException e) {
             System.out.println(e.format());
         } catch (IOException e) {

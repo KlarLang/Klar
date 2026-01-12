@@ -4,23 +4,22 @@ import java.util.EnumMap;
 
 public final class TokenFactory {
 
-    private static final EnumMap<TokenType, Token> SIMPLE_TEMPLATES =
-        new EnumMap<>(TokenType.class);
+    private static final EnumMap<TokenType, Token> SIMPLE_TEMPLATES = new EnumMap<>(TokenType.class);
 
     static {
         for (TokenType type : TokenType.values()) {
             if (isSimple(type)) {
                 SIMPLE_TEMPLATES.put(
-                    type,
-                    new Token(type, null, 0, 0)
-                );
+                        type,
+                        new Token(type, null, 0, 0));
             }
         }
     }
 
-    private TokenFactory() {}
+    private TokenFactory() {
+    }
 
-    public static Token simple(TokenType type, int line, int column) {
+    public static Token simple(TokenType type, String value, int line, int column) {
         Token base = SIMPLE_TEMPLATES.get(type);
 
         if (base == null) {
@@ -28,13 +27,11 @@ public final class TokenFactory {
         }
 
         return new Token(
-            base.getType(),
-            null,
-            line,
-            column
-        );
+                base.getType(),
+                value,
+                line,
+                column);
     }
-
 
     private static boolean isSimple(TokenType type) {
         switch (type) {

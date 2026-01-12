@@ -3,15 +3,9 @@ package org.klang.core.errors;
 import org.klang.core.diagnostics.DiagnosticCode;
 import org.klang.core.diagnostics.DiagnosticColors;
 
-/**
- * Exception thrown during the Semantic Analysis phase.
- * <p>
- * Provides rich, colored formatting for terminal output.
- * </p>
- */
-public final class SemanticException extends KException {
+public final class SyntaxException extends KException {
 
-    public SemanticException(
+    public SyntaxException(
             DiagnosticCode code,
             SourceLocation location,
             String[] contextLines,
@@ -27,17 +21,14 @@ public final class SemanticException extends KException {
     public String format() {
         StringBuilder sb = new StringBuilder();
 
-        // Header
         sb.append(DiagnosticColors.structure("[K:"))
                 .append(DiagnosticColors.errorCode(code.name()))
                 .append(DiagnosticColors.structure("] "))
                 .append(DiagnosticColors.errorName(code.name))
                 .append("\n");
 
-        // Phase & Location
-        sb.append(DiagnosticColors.structure("ERROR ("))
-                .append(code.phase.name())
-                .append(")\n");
+        sb.append(DiagnosticColors.structure("ERROR (")).append(code.phase.name()).append(")")
+                .append("\n");
 
         sb.append(DiagnosticColors.structure("at "))
                 .append(DiagnosticColors.neutral(location.file()))
@@ -47,15 +38,16 @@ public final class SemanticException extends KException {
                 .append(DiagnosticColors.structure(String.valueOf(location.column())))
                 .append("\n\n");
 
-        // Context Lines
         int errorLine = location.line();
         int maxLineDigitWidth = String.valueOf(errorLine).length();
+
         int firstLineInContext = errorLine - (contextLines.length - 1);
 
         for (int i = 0; i < contextLines.length; i++) {
             int currentLine = firstLineInContext + i;
 
-            sb.append(DiagnosticColors.lineNumber(padLeft_(currentLine, maxLineDigitWidth)))
+            sb.append(DiagnosticColors.lineNumber(
+                    padLeft(currentLine, maxLineDigitWidth)))
                     .append(DiagnosticColors.separator(" | "))
                     .append(DiagnosticColors.neutral(contextLines[i]))
                     .append("\n");
@@ -63,13 +55,12 @@ public final class SemanticException extends KException {
             if (currentLine == errorLine) {
                 sb.append(" ".repeat(maxLineDigitWidth))
                         .append(DiagnosticColors.separator(" | "))
-                        .append(" ".repeat(Math.max(0, location.column())))
-                        .append(DiagnosticColors.error("^"));
+                        .append(" ".repeat(Math.max(0, location.column() - length + 1)))
+                        .append(DiagnosticColors.error("^".repeat(this.length)));
                 sb.append("\n");
             }
         }
 
-        // Details
         sb.append("\n");
         sb.append(DiagnosticColors.structure("Cause:"))
                 .append("\n  ")
@@ -104,16 +95,16 @@ public final class SemanticException extends KException {
         return sb.toString();
     }
 
+    /**
+     * Retorna versão do erro sem cores (para logs, arquivos).
+     */
     public String formatPlain() {
         DiagnosticColors.RenderMode original = DiagnosticColors.getMode();
         DiagnosticColors.setMode(DiagnosticColors.RenderMode.PLAIN);
+
         String result = format();
+
         DiagnosticColors.setMode(original);
         return result;
-    }
-
-    private String padLeft_(int value, int width) {
-        String s = String.valueOf(value);
-        return " ".repeat(Math.max(0, width - s.length())) + s;
     }
 }

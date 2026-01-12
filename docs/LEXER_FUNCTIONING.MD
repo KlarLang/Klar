@@ -24,10 +24,6 @@
 - BANG        !
 
 ## Multi-character
-- INCREMENT       ++
-- DECREMENT       --
-- POWER           **
-
 - LTE             <=
 - GTE             >=
 - DOUBLEEQUAL     ==
@@ -36,8 +32,6 @@
 - AND             and
 - OR              or
  
-- ARROW           ->
-
 ## Literals
 - NUMBER                  [0-9]+
 - IDENTIFIER              [A-Za-z_][A-Za-z0-9_]*

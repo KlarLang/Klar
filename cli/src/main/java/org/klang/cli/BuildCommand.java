@@ -19,10 +19,7 @@ import org.klang.core.parser.ast.ProgramNode;
 import org.klang.core.semantics.TypeChecker;
 import org.klang.core.transpilers.JavaTranspiler;
 
-@Command(
-    name = "build",
-    description = "Build Klang source to Java"
-)
+@Command(name = "build", description = "Build Klang source to Java")
 public class BuildCommand implements Runnable {
 
     @Parameters(paramLabel = "FILE")
@@ -31,17 +28,16 @@ public class BuildCommand implements Runnable {
     @Override
     public void run() {
         Path path = file.toPath();
-        
-        String _fileName = path.getFileName().toString(); 
+
+        String _fileName = path.getFileName().toString();
         String fileName = _fileName.substring(0, _fileName.length() - 2);
 
         if (!_fileName.endsWith(".k")) {
             throw new KcInvalidFileType(
-                KcDiagnosticCode.KC002,
-                "build",
-                null,
-                _fileName
-            );
+                    KcDiagnosticCode.KC002,
+                    "build",
+                    null,
+                    _fileName);
         }
 
         try {

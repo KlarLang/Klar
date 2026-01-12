@@ -74,11 +74,13 @@ public class ParserException extends KException {
           .append(DiagnosticColors.neutral(cause))
           .append("\n");
         
-        sb.append("\n");
-        sb.append(DiagnosticColors.structure("Fix:"))
+        if (fix != null){
+          sb.append("\n");
+          sb.append(DiagnosticColors.structure("Fix:"))  
           .append("\n  ")
           .append(DiagnosticColors.neutral(fix))
           .append("\n");
+        }
 
         if (expected != null){
           sb.append("\n");
