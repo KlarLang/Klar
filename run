@@ -1,0 +1,31 @@
+#!/bin/bash
+clear
+# Assign the first argument to FILE
+FILE=$1
+CONTENT=$(sudo cat "$FILE")
+
+#./gradlew build
+
+# Build the project first
+
+echo -e "\n\n=======================\n\n"
+echo -e "Lexing $FILE\n\n"
+echo "$CONTENT"
+
+time java -jar ./cli/build/libs/klang.jar lex "$FILE" -st
+
+echo -e "\n\n=======================\n\n"
+echo -e "Parsing $FILE\n\n"
+echo "$CONTENT"
+time java -jar ./cli/build/libs/klang.jar parse "$FILE"
+
+echo -e "\n\n=======================\n\n"
+echo -e "Building $FILE\n\n"
+echo "$CONTENT"
+time java -jar ./cli/build/libs/klang.jar build "$FILE"
+
+echo -e "\n\n=======================\n\n"
+echo -e "Running $FILE\n\n"
+echo "$CONTENT"
+time java -jar ./cli/build/libs/klang.jar run "$FILE"
+

@@ -147,4 +147,5 @@ gc*
 allo*
 *.jfr
 run*
+!run
 gerar_tudao.sh
