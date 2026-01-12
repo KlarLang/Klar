@@ -12,15 +12,21 @@ public class TypeContext {
         this.parent = parent;
     }
 
-    public void declare(String name, TypeSymbol type) {
+    /**
+     * Tenta declarar uma variável. Retorna false se já existir (para o TypeChecker
+     * tratar o erro).
+     */
+    public boolean declare(String name, TypeSymbol type) {
         if (symbols.containsKey(name)) {
-            throw new RuntimeException(
-                "Variable '" + name + "' already declared in this scope"
-            );
+            return false;
         }
         symbols.put(name, type);
+        return true;
     }
 
+    /**
+     * Busca uma variável. Retorna NULL se não achar (não lança exceção).
+     */
     public TypeSymbol resolve(String name) {
         if (symbols.containsKey(name)) {
             return symbols.get(name);
@@ -28,6 +34,6 @@ public class TypeContext {
         if (parent != null) {
             return parent.resolve(name);
         }
-        throw new RuntimeException("Undefined variable '" + name + "'");
+        return null;
     }
 }

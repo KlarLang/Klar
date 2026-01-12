@@ -139,9 +139,11 @@ public class TypeChecker {
         if (node instanceof VariableDeclarationNode v) {
             TypeSymbol declared = resolveTypeSymbol(v.type);
             TypeSymbol value = checkExpression(v.value, ctx, ExpressionContext.ASSIGNMENT);
-            if (!isAssignable(value, declared))
+            if (!isAssignable(value, declared)) {
+
                 semanticError(DiagnosticCode.E207, "Type mismatch", "Cannot assign " + value + " to " + declared, null,
                         node);
+            }
             ctx.declare(v.name.getValue(), declared);
             return;
         }
@@ -277,8 +279,11 @@ public class TypeChecker {
         }
         if (node instanceof VariableExpressionNode v) {
             TypeSymbol s = ctx.resolve(v.name.getValue());
-            if (s == null)
-                semanticError(DiagnosticCode.E217, "Unresolved variable '" + v.name.getValue() + "'", null, null, v);
+            if (s == null) {
+                semanticError(DiagnosticCode.E217, "The variable '" + v.name.getValue() + "' does not exist",
+                        "Remove it or create it",
+                        null, v);
+            }
             return s;
         }
         if (node instanceof BinaryExpressionNode b)
