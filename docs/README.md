@@ -1,31 +1,42 @@
-# Klang Programming Language
+# Klang Programming Language (K)
 
-Klang is an **experimental programming language** focused on **explicitness, rigor, and polyglot orchestration**.
+Klang is an **experimental programming language** focused on **explicitness, semantic rigor, and polyglot orchestration**.
 
-It does **not** attempt to replace existing languages.  
-Instead, it provides a disciplined way to **coordinate and integrate multiple languages** inside complex software systems.
+It is **not designed to replace existing languages**.  
+Instead, Klang explores how software systems can be made more reliable by **making intent, boundaries, and assumptions explicit**.
 
-Klang is designed for developers who value **clarity, determinism, and long-term maintainability** over convenience or brevity.
+Klang is opinionated by design.
+
+---
+
+## TL;DR
+
+- ✔ Compiles and runs real programs today  
+- ✔ Generates Java code via an experimental backend  
+- ✔ Has its own lexer, parser, AST, and semantic analysis  
+- ✔ Produces structured, human-oriented error messages  
+- ⚠ Not production-ready  
+- ⚠ Syntax and semantics are still evolving  
 
 ---
 
 ## Why Klang Exists
 
-Modern software systems are inherently polyglot.
+Modern systems are inherently **polyglot**.
 
 They combine:
 - multiple languages
 - multiple runtimes
 - multiple semantic models
 
-Most problems in large systems do **not** come from syntax errors.  
-They come from **implicit assumptions**, **blurred boundaries**, and **semantic leakage** between languages.
+Most long-term failures do not come from syntax errors.  
+They come from **implicit assumptions**, **unclear intent**, and **leaking abstractions**.
 
 Klang exists to:
-- make cross-language boundaries **explicit**
-- treat intent as a **first-class concept**
-- reduce cognitive load in large, long-lived systems
-- enforce clarity where complexity is unavoidable
+- make cross-language boundaries explicit
+- treat intent as a first-class concept
+- reduce ambiguity in long-lived systems
+- prioritize clarity over convenience
 
 ---
 
@@ -40,94 +51,68 @@ If something matters, it must be written down.
 
 ---
 
-## Status
+## Current Status
 
 ⚠ **Experimental**
 
-Klang is under active development and **not production-ready**.
+Klang is under active development and intended for:
+- learning
+- experimentation
+- language and compiler research
 
-- Syntax and semantics may change
-- Some design principles are not fully enforced yet
-- The primary goal at this stage is feedback and iteration
+It is **not suitable for production use**.
 
 ---
 
-## Current Capabilities
+## What Works Today
 
-Implemented today:
+Implemented:
 - Lexer
 - Parser
 - Abstract Syntax Tree (AST)
 - Foundational semantic analysis
-- Structured and user-facing error reporting
-- CLI tooling for inspection and debugging
-- Java backend under active development
+- User-facing, structured error diagnostics
+- CLI tooling (`kc`)
+- Java backend (experimental but functional)
 
-Not fully implemented yet:
-- Full rigor level enforcement
-- Intent-based naming validation
-- Stable intermediate representation (IR)
-- Multi-backend support
+Partially implemented:
+- Intent validation
+- Strictness enforcement
+- Semantic error ordering
 
-These features are part of the **design direction**, not guarantees of current behavior.
-
----
-
-## Compilation Model
-
-Klang follows a traditional but strictly separated compilation pipeline:
-
-1. Lexical analysis
-2. Parsing
-3. Semantic validation
-4. Intent validation (partial)
-5. Backend target resolution
-6. Code generation
-
-Each stage is explicit and isolated.  
-No stage is allowed to silently fix or infer developer intent.
+Planned (not yet stable):
+- Intermediate Representation (IR)
+- Multiple backends
+- Configurable rigor levels
 
 ---
 
-## Strictness and Rigor
+## Language Characteristics (Important)
 
-Strictness is a **core design goal** of Klang.
+Klang is intentionally strict and explicit.
 
-The language is designed to be **strict by default**, even where enforcement is still evolving.
+Some notable rules:
+- Every function must declare a backend using `@Use`
+- All control structures must terminate explicitly (`afterall`)
+- All functions must end with an explicit `return` (including `void`)
+- Magic numbers may be rejected as a semantic violation
 
-Planned rigor levels:
-
-### strict (planned default)
-- Full intent validation
-- Strict naming grammar
-- No implicit conversions
-- Intended for production systems
-
-### explicit (planned)
-- Same rules as strict
-- Some violations emit warnings instead of errors
-
-### lenient (planned)
-- Disables intent enforcement
-- Allows ambiguous naming
-- Intended only for experimentation
-
-⚠ Lenient mode weakens the guarantees that define Klang.
+These are **design decisions**, not missing features.
 
 ---
 
-## Example (Early Syntax)
+## Example
 
 ```k
 @Use("java")
-public void main(){
+public void main() {
     integer x = 10;
     integer y = 20;
 
     integer result = calculateSum(x, y);
     println(result);
 
-    return;
+    return null;
 }
 
 @Use("java")
@@ -136,84 +121,79 @@ public integer calculateSum(integer a, integer b) {
 }
 ```
 
-CLI usage (debug-oriented at this stage):
+---
+
+## Installation (Early Tooling)
+
+Klang uses **Loom**, its bootstrap and project manager.
 
 ```bash
-kc lex example.k
-kc parse example.k
+git clone https://github.com/KlangLang/loom
+cd loom
+./install.sh   # or install.bat on Windows
+```
+
+Then:
+
+```bash
+loom install
+loom new my_project
+cd my_project
+kc run src/main.k
 ```
 
 ---
 
-What Klang Refuses to Do
+## Compilation Model
 
-Klang deliberately avoids:
+Klang follows a strictly separated pipeline:
 
-implicit behavior
+1. Lexical analysis  
+2. Parsing  
+3. Semantic validation  
+4. Intent validation (partial)  
+5. Backend resolution  
+6. Code generation  
 
-silent corrections
-
-hidden coercions
-
-convention without declaration
-
-
-These are design decisions, not missing features.
-
+No stage is allowed to silently infer or correct developer intent.
 
 ---
 
-Non-Goals
+## Non-Goals
 
 Klang is not:
-
-a replacement for Java, Python, Rust, or C
-
-a shortcut-focused scripting language
-
-optimized for minimal syntax
-
-designed for rapid prototyping
-
-
+- a replacement for Java, Python, Rust, or C
+- optimized for brevity or rapid prototyping
+- a convenience-first scripting language
 
 ---
 
-Legal Notice
-
-Klang is an independent project.
-
-It is not affiliated with, endorsed by, or sponsored by Oracle Corporation.
-Java is a registered trademark of Oracle Corporation.
-
-
----
-
-Roadmap (High-Level)
-
-Stabilize core syntax and semantics
-
-Define and freeze an intermediate representation (IR)
-
-Complete rigor and intent enforcement
-
-Stabilize the Java backend
-
-Introduce a formal backend extension API
-
-Explore additional backends (Python, C, Rust)
-
-
-The roadmap is intentionally conservative.
-Correctness takes precedence over speed.
-
-
----
-
-Philosophy
+## Philosophy
 
 Most long-term software failures are caused by ambiguity, not bugs.
 
 Klang treats clarity as a structural requirement.
 
 If the language feels demanding, it is working as intended.
+
+---
+
+## Legal Notice
+
+Klang is an independent project.
+
+It is not affiliated with, endorsed by, or sponsored by Oracle Corporation.  
+Java is a registered trademark of Oracle Corporation.
+
+---
+
+## Roadmap (High-Level)
+
+- Stabilize core syntax and semantics  
+- Finalize semantic error ordering  
+- Define and freeze an IR  
+- Stabilize Java backend  
+- Introduce backend extension API  
+- Explore additional backends  
+
+Correctness takes precedence over speed.
