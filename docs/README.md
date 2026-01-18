@@ -141,7 +141,7 @@ public integer calculateSum(integer a, integer b) {
 Klang uses **Loom**, its bootstrap and project manager.
 
 ```bash
-git clone https://github.com/KlangLang/loom
+git clone https://github.com/KlarLang/loom
 cd loom
 ./install.sh   # or install.bat on Windows
 ```
