@@ -1,0 +1,6 @@
+@Use("java")
+public void main(){
+    println("Hello world");
+
+    return null;
+}

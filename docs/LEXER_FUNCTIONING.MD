@@ -1,4 +1,4 @@
-# Klang Token Specification (v1.0)
+# Klar Token Specification (v1.0)
 
 ## Single-character
 - LPAREN      (
@@ -45,10 +45,7 @@
 - OTHERWISE
 - BECAUSE
 - AFTERALL
-- FOR
 - WHILE
-- BREAK
-- CONTINUE
 - PUBLIC
 - PROTECTED
 - INTERNAL

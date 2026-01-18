@@ -1,15 +1,15 @@
-# Klang Syntax Specification
+# Klar Syntax Specification
 
-This document defines the syntax and structural rules of the Klang language.
+This document defines the syntax and structural rules of the Klar language.
 
-Klang syntax is intentionally explicit.
+Klar syntax is intentionally explicit.
 Clarity and predictability take precedence over brevity.
 
 ---
 
 ## Compilation Rigor
 
-Klang enforces strict compilation rules by default.
+Klar enforces strict compilation rules by default.
 
 Default behavior:
 
@@ -174,4 +174,4 @@ These identifiers are rejected regardless of scope.
 
 These rules exist to prevent ambiguity, not to enforce style.
 
-Klang treats clarity as a structural requirement.
+Klar treats clarity as a structural requirement.

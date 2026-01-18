@@ -1,24 +1,24 @@
-# Klang Syntax & Semantics Specification — vNext
+# Klar Syntax & Semantics Specification — vNext
 
 > **Ambiguity is more dangerous than verbosity.**
 >
-> This document defines the updated syntactic and semantic rules of the Klang language,
+> This document defines the updated syntactic and semantic rules of the Klar language,
 > incorporating the latest anti-ambiguity and clarity-oriented design decisions.
 >
-> Klang is strict by default. All rules below apply under `--rigor=strict` unless stated otherwise.
+> Klar is strict by default. All rules below apply under `--rigor=strict` unless stated otherwise.
 
 ---
 
 ## 1. Core Principles (Reaffirmed)
 
-Klang is designed around the following non-negotiable principles:
+Klar is designed around the following non-negotiable principles:
 
 * Explicitness over convenience
 * Determinism over inference
 * Intent over convention
 * Readability for humans over compactness for machines
 
-Klang rejects:
+Klar rejects:
 
 * implicit behavior
 * hidden defaults
@@ -33,7 +33,7 @@ If something matters, it must be written down.
 
 ### 2.1 Boolean Operators
 
-Klang uses **lexical boolean operators**:
+Klar uses **lexical boolean operators**:
 
 * `and`
 * `or`
@@ -49,7 +49,7 @@ There are no aliases. One concept has one representation.
 
 ### 2.2 Operator Precedence Enforcement
 
-To prevent ambiguity, Klang enforces explicit grouping.
+To prevent ambiguity, Klar enforces explicit grouping.
 
 When mixing logical operators (`and`, `or`), parentheses are **mandatory**.
 
@@ -222,7 +222,7 @@ if (isEnabled == false) {
 
 ## 6. Decision Structure (`if / otherwise / afterall`)
 
-Klang treats decisions as **explicit, closable constructs**.
+Klar treats decisions as **explicit, closable constructs**.
 
 ### 6.1 `if`
 
@@ -380,7 +380,7 @@ retry(maxRetries);
 
 ## 9. Transpilation Guarantees
 
-Klang guarantees that:
+Klar guarantees that:
 
 * No explicit structure is lost during transpilation
 * `because`, `otherwise`, and `afterall` are preserved as comments or annotations
@@ -396,5 +396,5 @@ The transpiler is a semantic translator, not a stylistic optimizer.
 > Every action must be named.
 > Every value must mean something.
 
-Klang is strict by default.
+Klar is strict by default.
 Clarity is not optional.

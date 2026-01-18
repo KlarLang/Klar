@@ -1,6 +1,6 @@
-# Klang Technical Documentation
+# Klar Technical Documentation
 
-This document describes the internal architecture of the Klang language.
+This document describes the internal architecture of the Klar language.
 
 ---
 
@@ -68,13 +68,13 @@ Silent failure is forbidden.
 
 ---
 
-## Why Klang Avoids Implicit Behavior
+## Why Klar Avoids Implicit Behavior
 
 Implicit behavior leads to:
 - hidden bugs
 - fragile integrations
 - unpredictable systems
 
-Klang favors explicit declarations even when verbose.
+Klar favors explicit declarations even when verbose.
 
 This is a deliberate tradeoff.

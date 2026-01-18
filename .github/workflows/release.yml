@@ -1,4 +1,4 @@
-name: Klang Release
+name: Klar Release
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: klang
+          name: klar
           path: cli/build/libs/*.jar
 
   release:
@@ -34,7 +34,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: klang
+          name: klar
 
       - name: Publish Release
         uses: softprops/action-gh-release@v2

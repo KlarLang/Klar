@@ -1,6 +1,6 @@
-# Klang Diagnostic Specification
+# Klar Diagnostic Specification
 
-This document defines the **official diagnostic codes, categories and semantics** used by the Klang language.
+This document defines the **official diagnostic codes, categories and semantics** used by the Klar language.
 
 Diagnostics are a **public, stable API** of the language.
 Their meaning MUST NOT change across versions.
@@ -77,7 +77,7 @@ integer x = 10 @
 ```
 
 **Cause:**
-The lexer found a character that does not belong to the Klang lexical alphabet.
+The lexer found a character that does not belong to the Klar lexical alphabet.
 
 **Fix:**
 Remove the invalid character or replace it with a valid token.
@@ -96,7 +96,7 @@ A string literal was not properly terminated.
 **Example:**
 
 ```
-string name = "Klang
+string name = "Klar
                     ^
 ```
 
@@ -125,7 +125,7 @@ integer x = 12.3.4;
 ```
 
 **Cause:**
-The numeric literal does not follow a valid Klang number format.
+The numeric literal does not follow a valid Klar number format.
 
 **Fix:**
 Rewrite the literal using a valid numeric representation.
@@ -171,7 +171,7 @@ integer x = 10
 ```
 
 **Cause:**
-Klang requires explicit statement termination to ensure deterministic parsing and backend compatibility.
+Klar requires explicit statement termination to ensure deterministic parsing and backend compatibility.
 
 **Fix:**
 Add a semicolon at the end of the statement.
@@ -208,7 +208,7 @@ Add the corresponding closing brace.
 **Recoverable:** No
 
 **Description:**
-A function declaration does not follow the canonical Klang signature format.
+A function declaration does not follow the canonical Klar signature format.
 
 **Cause:**
 Function declarations must explicitly define visibility, return type and parameter list.
@@ -240,7 +240,7 @@ Integer x = 10;
 ```
 
 **Cause:**
-Klang does not normalize or infer type identifiers.
+Klar does not normalize or infer type identifiers.
 
 **Fix:**
 Use the canonical type name.
@@ -320,7 +320,7 @@ integer x;
 ```
 
 **Cause:**
-Klang forbids uninitialized variables to prevent undefined state.
+Klar forbids uninitialized variables to prevent undefined state.
 
 **Fix:**
 Provide an explicit initializer.
@@ -394,7 +394,7 @@ Replace the identifier with a permitted name.
 Implicit behavior was detected.
 
 **Cause:**
-Klang forbids implicit conversions or assumptions.
+Klar forbids implicit conversions or assumptions.
 
 **Fix:**
 Rewrite the code to be fully explicit.
@@ -440,7 +440,7 @@ Use a valid backend identifier.
 **Recoverable:** No
 
 **Description:**
-A Klang type cannot be mapped to the selected backend.
+A Klar type cannot be mapped to the selected backend.
 
 **Fix:**
 Replace the type with a backend-compatible alternative.
@@ -509,4 +509,4 @@ Transpilation was aborted due to an unrecoverable error.
 Diagnostic codes defined in this document are **stable and permanent**.
 
 Changing the meaning or category of an existing diagnostic code
-constitutes a **breaking change** in the Klang language.
+constitutes a **breaking change** in the Klar language.

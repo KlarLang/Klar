@@ -1,26 +1,15 @@
-# Klang Programming Language (K)
+# Klar Programming Language
 
-Klang is an **experimental programming language** focused on **explicitness, semantic rigor, and polyglot orchestration**.
+Klar is an **experimental programming language** focused on **explicitness, rigor, and polyglot orchestration**.
 
 It is **not designed to replace existing languages**.  
 Instead, Klang explores how software systems can be made more reliable by **making intent, boundaries, and assumptions explicit**.
 
-Klang is opinionated by design.
+Klar is designed for developers who value **clarity, determinism, and long-term maintainability** over convenience or brevity.
 
 ---
 
-## TL;DR
-
-- ✔ Compiles and runs real programs today  
-- ✔ Generates Java code via an experimental backend  
-- ✔ Has its own lexer, parser, AST, and semantic analysis  
-- ✔ Produces structured, human-oriented error messages  
-- ⚠ Not production-ready  
-- ⚠ Syntax and semantics are still evolving  
-
----
-
-## Why Klang Exists
+## Why Klar Exists
 
 Modern systems are inherently **polyglot**.
 
@@ -32,11 +21,11 @@ They combine:
 Most long-term failures do not come from syntax errors.  
 They come from **implicit assumptions**, **unclear intent**, and **leaking abstractions**.
 
-Klang exists to:
-- make cross-language boundaries explicit
-- treat intent as a first-class concept
-- reduce ambiguity in long-lived systems
-- prioritize clarity over convenience
+Klar exists to:
+- make cross-language boundaries **explicit**
+- treat intent as a **first-class concept**
+- reduce cognitive load in large, long-lived systems
+- enforce clarity where complexity is unavoidable
 
 ---
 
@@ -55,10 +44,7 @@ If something matters, it must be written down.
 
 ⚠ **Experimental**
 
-Klang is under active development and intended for:
-- learning
-- experimentation
-- language and compiler research
+Klar is under active development and **not production-ready**.
 
 It is **not suitable for production use**.
 
@@ -89,7 +75,7 @@ Planned (not yet stable):
 
 ## Language Characteristics (Important)
 
-Klang is intentionally strict and explicit.
+Klar follows a traditional but strictly separated compilation pipeline:
 
 Some notable rules:
 - Every function must declare a backend using `@Use`
@@ -101,7 +87,34 @@ These are **design decisions**, not missing features.
 
 ---
 
-## Example
+## Strictness and Rigor
+
+Strictness is a **core design goal** of Klar.
+
+The language is designed to be **strict by default**, even where enforcement is still evolving.
+
+Planned rigor levels:
+
+### strict (planned default)
+- Full intent validation
+- Strict naming grammar
+- No implicit conversions
+- Intended for production systems
+
+### explicit (planned)
+- Same rules as strict
+- Some violations emit warnings instead of errors
+
+### lenient (planned)
+- Disables intent enforcement
+- Allows ambiguous naming
+- Intended only for experimentation
+
+⚠ Lenient mode weakens the guarantees that define Klar.
+
+---
+
+## Example (Early Syntax)
 
 ```k
 @Use("java")
@@ -144,9 +157,9 @@ kc run src/main.k
 
 ---
 
-## Compilation Model
+What Klar Refuses to Do
 
-Klang follows a strictly separated pipeline:
+Klar deliberately avoids:
 
 1. Lexical analysis  
 2. Parsing  
@@ -161,18 +174,56 @@ No stage is allowed to silently infer or correct developer intent.
 
 ## Non-Goals
 
-Klang is not:
-- a replacement for Java, Python, Rust, or C
-- optimized for brevity or rapid prototyping
-- a convenience-first scripting language
+Klar is not:
+
+a replacement for Java, Python, Rust, or C
+
+a shortcut-focused scripting language
+
+optimized for minimal syntax
+
+designed for rapid prototyping
+
+
 
 ---
 
-## Philosophy
+Legal Notice
+
+Klar is an independent project.
+
+It is not affiliated with, endorsed by, or sponsored by Oracle Corporation.
+Java is a registered trademark of Oracle Corporation.
+
+
+---
+
+Roadmap (High-Level)
+
+Stabilize core syntax and semantics
+
+Define and freeze an intermediate representation (IR)
+
+Complete rigor and intent enforcement
+
+Stabilize the Java backend
+
+Introduce a formal backend extension API
+
+Explore additional backends (Python, C, Rust)
+
+
+The roadmap is intentionally conservative.
+Correctness takes precedence over speed.
+
+
+---
+
+Philosophy
 
 Most long-term software failures are caused by ambiguity, not bugs.
 
-Klang treats clarity as a structural requirement.
+Klar treats clarity as a structural requirement.
 
 If the language feels demanding, it is working as intended.
 

@@ -1,12 +1,12 @@
-# Klang Design Philosophy
+# Klar Design Philosophy
 
-Klang is built on a simple belief:
+Klar is built on a simple belief:
 
 Ambiguity is more dangerous than verbosity.
 
 ---
 
-## What Klang Refuses to Do
+## What Klar Refuses to Do
 
 - Guess developer intent
 - Correct code silently
@@ -17,7 +17,7 @@ Ambiguity is more dangerous than verbosity.
 
 ## Defaults Are Moral Choices
 
-Klang defaults to strict mode because defaults shape behavior.
+Klar defaults to strict mode because defaults shape behavior.
 
 A permissive default leads to fragile systems.
 A strict default encourages discipline and clarity.
@@ -36,7 +36,7 @@ that some guarantees are being sacrificed.
 
 ## Long-Term Vision
 
-Klang aims to:
+Klar aims to:
 - age well
 - scale cognitively
 - support large, long-lived systems

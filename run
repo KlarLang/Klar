@@ -12,20 +12,20 @@ echo -e "\n\n=======================\n\n"
 echo -e "Lexing $FILE\n\n"
 echo "$CONTENT"
 
-time java -jar ./cli/build/libs/klang.jar lex "$FILE" -st
+time java -jar ./cli/build/libs/klar.jar lex "$FILE" -st
 
 echo -e "\n\n=======================\n\n"
 echo -e "Parsing $FILE\n\n"
 echo "$CONTENT"
-time java -jar ./cli/build/libs/klang.jar parse "$FILE"
+time java -jar ./cli/build/libs/klar.jar parse "$FILE"
 
 echo -e "\n\n=======================\n\n"
 echo -e "Building $FILE\n\n"
 echo "$CONTENT"
-time java -jar ./cli/build/libs/klang.jar build "$FILE"
+time java -jar ./cli/build/libs/klar.jar build "$FILE"
 
 echo -e "\n\n=======================\n\n"
 echo -e "Running $FILE\n\n"
 echo "$CONTENT"
-time java -jar ./cli/build/libs/klang.jar run "$FILE"
+time java -jar ./cli/build/libs/klar.jar run "$FILE"
 

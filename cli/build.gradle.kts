@@ -25,12 +25,12 @@ dependencies {
 application {
     // SUA CLI INTERNA → “kc”
     // O usuário nunca vai rodar "k" dentro do jar.
-    mainClass.set("org.klang.cli.KMain")
+    mainClass.set("org.klar.cli.KMain")
 }
 
 tasks {
     shadowJar {
-        archiveBaseName.set("klang")   // nome final correto
+        archiveBaseName.set("klar")   // nome final correto
         archiveClassifier.set("")       // sem -all
         archiveVersion.set("")          // sem versão no nome
 
@@ -38,7 +38,7 @@ tasks {
 
         manifest {
             attributes(
-                "Main-Class" to "org.klang.cli.KMain",
+                "Main-Class" to "org.klar.cli.KMain",
                 "Implementation-Version" to project.version
             )
         }
