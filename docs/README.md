@@ -231,7 +231,7 @@ If the language feels demanding, it is working as intended.
 
 ## Legal Notice
 
-Klang is an independent project.
+Klar is an independent project.
 
 It is not affiliated with, endorsed by, or sponsored by Oracle Corporation.  
 Java is a registered trademark of Oracle Corporation.
