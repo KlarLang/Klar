@@ -138,7 +138,7 @@ public integer calculateSum(integer a, integer b) {
 
 ## Installation (Early Tooling)
 
-Klang uses **Loom**, its bootstrap and project manager.
+Klar uses **Loom**, its bootstrap and project manager.
 
 ```bash
 git clone https://github.com/KlarLang/loom
