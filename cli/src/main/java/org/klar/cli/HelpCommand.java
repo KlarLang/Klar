@@ -38,10 +38,10 @@ public class HelpCommand implements Runnable {
         str.append("    ").append(KcDiagnosticColors.structure("parse")).append("            ").append(KcDiagnosticColors.neutral("Parse file.k"))
         .append("\n");
         
-        str.append("    ").append(KcDiagnosticColors.structure("build")).append("            ").append(KcDiagnosticColors.neutral("Build Klang source to Java (for now)"))
+        str.append("    ").append(KcDiagnosticColors.structure("build")).append("            ").append(KcDiagnosticColors.neutral("Build Klar source to Java (for now)"))
         .append("\n");
 
-        str.append("    ").append(KcDiagnosticColors.structure("run")).append("              ").append(KcDiagnosticColors.neutral("Transpile, compile and run a Klang program"))
+        str.append("    ").append(KcDiagnosticColors.structure("run")).append("              ").append(KcDiagnosticColors.neutral("Transpile, compile and run a Klar program"))
         .append("\n");
 
         str.append("    ").append(KcDiagnosticColors.structure("gen-completion")).append("   ").append(KcDiagnosticColors.neutral("Generate autocomplete script"))
@@ -52,7 +52,7 @@ public class HelpCommand implements Runnable {
         
         str.append("    ").append(KcDiagnosticColors.structure("-h")).append(KcDiagnosticColors.separator(", ")).append(KcDiagnosticColors.structure("--help")).append("        ").append(KcDiagnosticColors.neutral("Show this help catalog"))
         .append("\n");
-        str.append("    ").append(KcDiagnosticColors.structure("-V")).append(KcDiagnosticColors.separator(", ")).append(KcDiagnosticColors.structure("--version")).append("     ").append(KcDiagnosticColors.neutral("Show Klang version"))
+        str.append("    ").append(KcDiagnosticColors.structure("-V")).append(KcDiagnosticColors.separator(", ")).append(KcDiagnosticColors.structure("--version")).append("     ").append(KcDiagnosticColors.neutral("Show Klar version"))
         .append(NEW_LINE);
         
         str.append("  ").append(KcDiagnosticColors.structure("Examples"))

@@ -11,7 +11,7 @@ import org.klar.core.errors.SourceLocation;
 import org.klar.core.errors.SourceManager;
 
 /**
- * Lexical Analyzer (Lexer) for the Klang programming language.
+ * Lexical Analyzer (Lexer) for the Klar programming language.
  * <p>
  * The Lexer is the first phase of the compiler pipeline. It takes the raw
  * source code
@@ -29,10 +29,10 @@ import org.klar.core.errors.SourceManager;
  * tracks line/column numbers for error reporting.</li>
  * <li><strong>Comment Handling:</strong> Ignores both single-line ({@code //})
  * and multi-line ({@code /* ... *&#47;}) comments.</li>
- * <li><strong>Syntax Enforcement:</strong> Enforces Klang-specific lexical
+ * <li><strong>Syntax Enforcement:</strong> Enforces Klar-specific lexical
  * rules, such as prohibiting C-style increment/decrement operators ({@code ++},
  * {@code --}) and logical operators ({@code &&}, {@code ||}) in favor of
- * Klang's idiomatic syntax.</li>
+ * Klar's idiomatic syntax.</li>
  * <li><strong>String Interning:</strong> Uses a symbol table to canonicalize
  * identifiers, reducing memory usage.</li>
  * </ul>
@@ -121,9 +121,9 @@ public class Lexer {
      * <p>
      * This method explicitly validates and rejects C-style operators that are not
      * supported
-     * in Klang (e.g., {@code ++}, {@code --}, {@code &&}, {@code ||}), providing
+     * in Klar (e.g., {@code ++}, {@code --}, {@code &&}, {@code ||}), providing
      * helpful
-     * diagnostic messages suggesting the correct Klang alternatives.
+     * diagnostic messages suggesting the correct Klar alternatives.
      * </p>
      * 
      * @return A list of tokens representing the source code.
@@ -448,7 +448,7 @@ public class Lexer {
      * Handles escape sequences (e.g., {@code \n}, {@code \t}, {@code \"}) and
      * checks for
      * unclosed strings or line breaks within the string (which are not allowed in
-     * Klang).
+     * Klar).
      * </p>
      * 
      * @param startLine   The line number where the string started.

@@ -16,19 +16,16 @@ import org.klar.core.errors.SourceManager;
 import org.klar.core.lexer.Lexer;
 import org.klar.core.lexer.Token;
 
-@Command(
-    name = "lex",
-    description = "Show file tokens"
-)
+@Command(name = "lex", description = "Show file tokens")
 public class LexCommand implements Runnable {
 
     @Parameters(paramLabel = "FILE")
     private File file;
 
-    @Option(names = {"--show-tokens", "-st"}, description = "Explicitly show tokens")
+    @Option(names = { "--show-tokens", "-st" }, description = "Explicitly show tokens")
     private boolean showTokens = false;
 
-    @Option(names = {"--show-error", "-se"}, description = "Explicitly show tokens")
+    @Option(names = { "--show-error", "-se" }, description = "Explicitly show tokens")
     private boolean showError = false;
 
     @Override
@@ -36,7 +33,7 @@ public class LexCommand implements Runnable {
         Path path = file.toPath();
         String fileName = path.getFileName().toString();
 
-        if (!fileName.endsWith(".kl") || !fileName.endsWith(".klar")) {
+        if (!fileName.endsWith(".kl") && !fileName.endsWith(".klar")) {
 
             throw new KcInvalidFileType(KcDiagnosticCode.KC002, "lex", null, path.getFileName().toString());
         }
@@ -48,23 +45,24 @@ public class LexCommand implements Runnable {
             Lexer lexer = new Lexer(source, file.getPath(), sourceManager);
             List<Token> a = lexer.tokenizeSourceCode();
 
-            if (showTokens){
+            if (showTokens) {
                 for (Token var : a) {
                     System.out.println(var);
-                };
+                }
+                ;
             } else {
                 System.out.println("Lexing successful! (Use --show-tokens to see the output)");
             }
-            
 
         } catch (KException e) {
             System.out.println(e.format());
 
         } catch (Exception e) {
-            if (showError){
+            if (showError) {
                 e.printStackTrace();
-            }{
-                System.out.println("Use --show-error or -se to show stack trace");                
+            }
+            {
+                System.out.println("Use --show-error or -se to show stack trace");
             }
             throw new RuntimeException("Internal compiler error", e);
         }

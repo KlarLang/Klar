@@ -1,44 +1,44 @@
 package org.klar.core.diagnostics;
 
 /**
- * Sistema modular de cores para diagnósticos da Klang.
+ * Sistema modular de cores para diagnósticos da Klar.
  * Baseado em camadas semânticas, não decoração.
  */
 public final class DiagnosticColors {
     // Camada 0 - TEXTO NEUTRO
 
     public static final String NEUTRAL = "\u001B[38;2;220;220;220m";
-    
+
     public static final String PLAIN = "\u001B[0m";
 
     // Camada 1 - ESTRUTURA (metadados)
-    
+
     public static final String STRUCTURE = "\u001B[38;2;150;150;150m";
-    
+
     public static final String LINE_NUMBER = "\u001B[38;2;90;90;90m";
-    
+
     public static final String SEPARATOR = "\u001B[38;2;70;70;70m";
 
     // Camada 2 - ERRO (foco visual)
-    
+
     public static final String ERROR_CODE = "\u001B[38;2;220;50;47m";
-    
+
     public static final String ERROR_NAME = "\u001B[38;2;200;200;200m";
-    
+
     public static final String ERROR_HIGHLIGHT = "\u001B[38;2;220;50;47m";
 
     // Camada 3 - AJUDA (resolução)
-    
+
     public static final String HELP = "\u001B[38;2;100;150;200m";
-    
+
     public static final String HELP_ACCENT = "\u001B[38;2;120;180;220m";
 
     // RESET
-    
+
     public static final String RESET = "\u001B[0m";
 
     // MODO DE RENDERIZAÇÃO
-    
+
     private static RenderMode mode = RenderMode.AUTO;
 
     public enum RenderMode {
@@ -124,12 +124,13 @@ public final class DiagnosticColors {
         }
 
         String term = System.getenv("TERM");
-        if (term == null) return false;
+        if (term == null)
+            return false;
 
-        return term.contains("color") 
-            || term.contains("xterm") 
-            || term.contains("screen")
-            || term.equals("linux");
+        return term.contains("color")
+                || term.contains("xterm")
+                || term.contains("screen")
+                || term.equals("linux");
     }
 
     /**
@@ -208,8 +209,8 @@ public final class DiagnosticColors {
      * Útil para testar em diferentes terminais.
      */
     public static void printColorTest() {
-        System.out.println("\n=== Klang Diagnostic Colors Test ===\n");
-        
+        System.out.println("\n=== Klar Diagnostic Colors Test ===\n");
+
         System.out.println(neutral("NEUTRAL:    ") + neutral("This is neutral text (code, examples)"));
         System.out.println(structure("STRUCTURE:  ") + structure("This is structure (metadata)"));
         System.out.println(lineNumber("LINE_NUM:   ") + lineNumber("This is line number (very discrete)"));
@@ -219,24 +220,23 @@ public final class DiagnosticColors {
         System.out.println(error("ERROR_HIGH: ") + error("^ caret and invalid token"));
         System.out.println(help("HELP:       ") + help("This is help (fix, example)"));
         System.out.println(helpAccent("HELP_ACC:   ") + helpAccent("This is help accent"));
-        
+
         System.out.println("\n=== Combined Example ===\n");
         System.out.println(
-            structure("[K:")
-            + errorCode("E001")
-            + structure("] ")
-            + errorName("InvalidCharacter") 
-            + "\n"
-            + structure("ERROR (Lexical)")
-            + "\n"
-            + structure("at ")
-            + neutral("examples/teste.k:")
-            + structure("38:0") +
-            "\n\n" +
-            lineNumber("36") + separator(" | ") + neutral("$") +
-            "\n" + separator("   | ") + error("^")
-        );
-        
+                structure("[K:")
+                        + errorCode("E001")
+                        + structure("] ")
+                        + errorName("InvalidCharacter")
+                        + "\n"
+                        + structure("ERROR (Lexical)")
+                        + "\n"
+                        + structure("at ")
+                        + neutral("examples/teste.k:")
+                        + structure("38:0") +
+                        "\n\n" +
+                        lineNumber("36") + separator(" | ") + neutral("$") +
+                        "\n" + separator("   | ") + error("^"));
+
         System.out.println("\nCurrent mode: " + mode);
     }
 }

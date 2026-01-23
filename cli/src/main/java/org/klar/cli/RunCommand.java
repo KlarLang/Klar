@@ -61,7 +61,6 @@ public class RunCommand implements Runnable {
             boolean needsRebuild = BuildCache.needsRebuild(path, cacheFile) || !Files.exists(classFile);
 
             if (needsRebuild) {
-                // System.out.println("Building " + fileName + ".k...");
 
                 // 1. Read
                 String source = Files.readString(path);

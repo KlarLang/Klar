@@ -38,7 +38,7 @@ import org.klar.core.errors.SourceLocation;
 import org.klar.core.errors.SourceManager;
 
 /**
- * Recursive descent parser for the Klang programming language.
+ * Recursive descent parser for the Klar programming language.
  *
  * Abstract Syntax Tree (AST) that represents the structure of the source code.
  * It implements a top-down parsing strategy.
@@ -232,7 +232,7 @@ public class Parser {
         expect(TokenType.AFTERALL,
                 DiagnosticCode.E000,
                 "Expected 'afterall' to close decision block",
-                "All decision structures in Klang must end with 'afterall'",
+                "All decision structures in Klar must end with 'afterall'",
                 "Add 'afterall'",
                 "afterall",
                 "if (...) { ... } afterall;",
@@ -375,7 +375,7 @@ public class Parser {
                 "Add '='",
                 "=",
                 "integer x = 0;",
-                "Klang does not support uninitialized variables.");
+                "Klar does not support uninitialized variables.");
 
         ExpressionNode initializer = parseExpression();
 

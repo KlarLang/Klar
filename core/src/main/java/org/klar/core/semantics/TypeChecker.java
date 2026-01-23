@@ -14,7 +14,7 @@ import org.klar.core.parser.ast.*;
 import org.klar.core.parser.ast.*;
 
 /**
- * Semantic Analyzer (Type Checker) for Klang.
+ * Semantic Analyzer (Type Checker) for Klar.
  * <p>
  * Responsible for verifying that the syntactically correct AST adheres to the
  * language's semantic rules (Type safety, Scope rules, Magic numbers, etc.).

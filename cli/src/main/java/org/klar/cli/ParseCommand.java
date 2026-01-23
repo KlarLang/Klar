@@ -16,10 +16,7 @@ import org.klar.core.lexer.Token;
 import org.klar.core.parser.Parser;
 import org.klar.core.parser.ast.ProgramNode;
 
-@Command(
-    name = "parse",
-    description = "Parse file.kl | file.klar"
-)
+@Command(name = "parse", description = "Parse file.kl | file.klar")
 public class ParseCommand implements Runnable {
 
     @Parameters(paramLabel = "FILE")
@@ -30,12 +27,12 @@ public class ParseCommand implements Runnable {
         Path path = file.toPath();
         String fileName = path.getFileName().toString();
 
-        if (!fileName.endsWith(".kl") || !fileName.endsWith(".klar")) {
+        if (!fileName.endsWith(".kl") && !fileName.endsWith(".klar")) {
             throw new KcInvalidFileType(
-                KcDiagnosticCode.KC002,
-                 "parse",
-                  null,
-                   path.getFileName().toString());
+                    KcDiagnosticCode.KC002,
+                    "parse",
+                    null,
+                    path.getFileName().toString());
         }
 
         try {

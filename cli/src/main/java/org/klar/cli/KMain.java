@@ -1,7 +1,7 @@
 package org.klar.cli;
 
-import org.klar.cli.error.KlangExceptionHandler;
-import org.klar.cli.error.KlangParameterExceptionHandler;
+import org.klar.cli.error.KlarExceptionHandler;
+import org.klar.cli.error.KlarParameterExceptionHandler;
 import org.klar.core.errors.KException;
 
 import picocli.CommandLine;
@@ -56,8 +56,8 @@ public class KMain implements Runnable {
         try {
             CommandLine cmd = new CommandLine(new KMain());
             
-            cmd.setExecutionExceptionHandler(new KlangExceptionHandler());
-            cmd.setParameterExceptionHandler(new KlangParameterExceptionHandler());
+            cmd.setExecutionExceptionHandler(new KlarExceptionHandler());
+            cmd.setParameterExceptionHandler(new KlarParameterExceptionHandler());
             
             int exitCode = cmd.execute(args);
             System.exit(exitCode);

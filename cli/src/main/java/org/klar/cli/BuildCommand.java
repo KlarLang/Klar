@@ -32,7 +32,8 @@ public class BuildCommand implements Runnable {
         String _fileName = path.getFileName().toString();
         String fileName = _fileName.substring(0, _fileName.length() - 2);
 
-        if (!_fileName.endsWith(".kl") || !_fileName.endsWith(".klar")) {
+        System.err.println(_fileName);
+        if (!_fileName.endsWith(".kl") && !_fileName.endsWith(".klar")) {
             throw new KcInvalidFileType(
                     KcDiagnosticCode.KC002,
                     "build",

@@ -1,5 +1,5 @@
 # ============================================================
-# Klang Project — .gitignore (Temporary Distribution Mode)
+# Klar Project — .gitignore (Temporary Distribution Mode)
 # ============================================================
 
 # ---------------------------
@@ -138,7 +138,7 @@ config/local.yml
 !*.k
 
 # ---------------------------
-# KLANG-SPECIFIC
+# Klar-SPECIFIC
 # ---------------------------
 #*.kc
 #*.ko

@@ -1,5 +1,30 @@
 @Use("java")
-public void main() {
-    print(a);
+public void main(){
+    double x = 1.0;
+    double y = 6.0;
+    double z = 4.0;
+    
+    double resposta = ruleOfThree(x, y, z);
+    println("Levaram: " + resposta + " horas.");
+
     return null;
 }
+
+@Use("java")
+public double ruleOfThree(double x, double y, double z){
+    double resultado = z * y / x;
+
+    return resultado;
+}
+
+/*
+
+5 -> 12L (agua)
+3 -> xL(agua)
+
+5x = 36 = 36/5 = [7.2]
+
+x 
+y = 12
+z
+*/

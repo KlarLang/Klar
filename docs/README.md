@@ -3,7 +3,7 @@
 Klar is an **experimental programming language** focused on **explicitness, rigor, and polyglot orchestration**.
 
 It is **not designed to replace existing languages**.  
-Instead, Klang explores how software systems can be made more reliable by **making intent, boundaries, and assumptions explicit**.
+Instead, Klar explores how software systems can be made more reliable by **making intent, boundaries, and assumptions explicit**.
 
 Klar is designed for developers who value **clarity, determinism, and long-term maintainability** over convenience or brevity.
 

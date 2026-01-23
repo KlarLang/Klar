@@ -3,7 +3,7 @@ package org.klar.core.diagnostics;
 import org.klar.core.errors.Phase;
 
 /**
- * Enumeration of all possible diagnostic codes in the Klang compiler.
+ * Enumeration of all possible diagnostic codes in the Klar compiler.
  * <p>
  * Acts as a central registry for errors, categorized by compiler phase.
  * </p>
