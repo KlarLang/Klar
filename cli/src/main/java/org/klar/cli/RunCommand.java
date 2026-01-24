@@ -51,11 +51,16 @@ public class RunCommand implements Runnable {
         try {
             Path outDir = Path.of("out");
             Path cacheDir = outDir.resolve(".cache");
+            Path souceOutDir = outDir.resolve("java");
+            Path classOutDir = outDir.resolve("class");
+
             Files.createDirectories(cacheDir);
+            Files.createDirectories(souceOutDir);
+            Files.createDirectories(classOutDir);
 
             Path cacheFile = cacheDir.resolve(fileName + ".hash");
-            Path javaFile = outDir.resolve((fileName + ".java"));
-            Path classFile = outDir.resolve(fileName + ".class");
+            Path javaFile = souceOutDir.resolve((fileName + ".java"));
+            Path classFile = classOutDir.resolve(fileName + ".class");
 
             // Verificar se precisa recompilar (CORRIGIDO AQUI)
             boolean needsRebuild = BuildCache.needsRebuild(path, cacheFile) || !Files.exists(classFile);
@@ -86,11 +91,9 @@ public class RunCommand implements Runnable {
                 Files.writeString(javaFile, javaCode);
 
                 // 7. Compile
-                // System.out.println("Compiling Java code...");
-                // System.out.println("\n");
                 Process javac = new ProcessBuilder(
                         "javac",
-                        "-d", outDir.toString(),
+                        "-d", classOutDir.toString(),
                         javaFile.toString()).inheritIO().start();
 
                 if (javac.waitFor() != 0) {
@@ -113,7 +116,7 @@ public class RunCommand implements Runnable {
 
             // 9. Execute (sempre executa, mesmo se não recompilou)
             Process java = new ProcessBuilder(
-                    "java", "-cp", outDir.toAbsolutePath().toString(), fileName).inheritIO().start();
+                    "java", "-cp", classOutDir.toAbsolutePath().toString(), fileName).inheritIO().start();
 
             int exitCode = java.waitFor();
             System.err.println("\nProgram exited with code: " + exitCode);

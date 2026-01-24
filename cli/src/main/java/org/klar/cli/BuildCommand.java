@@ -30,7 +30,7 @@ public class BuildCommand implements Runnable {
         Path path = file.toPath();
 
         String _fileName = path.getFileName().toString();
-        String fileName = _fileName.substring(0, _fileName.length() - 2);
+        String fileName = _fileName.replaceFirst("[.][^.]+$", "");
 
         System.err.println(_fileName);
         if (!_fileName.endsWith(".kl") && !_fileName.endsWith(".klar")) {
@@ -43,11 +43,16 @@ public class BuildCommand implements Runnable {
 
         try {
             Path outDir = Path.of("out");
+            Path sourceOutDir = outDir.resolve("java"); // Pasta para os .java
+            Path classOutDir = outDir.resolve("class");
             Path cacheDir = outDir.resolve(".cache");
+
             Files.createDirectories(cacheDir);
+            Files.createDirectories(sourceOutDir);
+            Files.createDirectories(classOutDir);
 
             Path cacheFile = cacheDir.resolve(fileName + ".hash");
-            Path outputFile = outDir.resolve(fileName + ".java");
+            Path outputFile = sourceOutDir.resolve(fileName + ".java");
 
             // Verificar se precisa rebuildar
             if (!BuildCache.needsRebuild(path, cacheFile)) {
@@ -55,7 +60,7 @@ public class BuildCommand implements Runnable {
                 return;
             }
 
-            System.out.println("Building " + fileName + ".k...");
+            System.out.println("Building " + fileName + ".kl...");
 
             // 1. Read
             String source = Files.readString(path);

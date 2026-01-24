@@ -5,7 +5,7 @@ import org.klar.cli.error.diagnostic.KcDiagnosticColors;
 import picocli.CommandLine.IVersionProvider;
 
 public class KVersionProvider implements IVersionProvider {
-    private static final String VERSION = "0.13.1";
+    private static final String VERSION = "0.13.2";
     private static final StringBuilder str = new StringBuilder();
 
     @Override
