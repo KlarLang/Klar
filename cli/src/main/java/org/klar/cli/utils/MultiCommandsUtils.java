@@ -18,8 +18,6 @@ import org.klar.core.parser.ast.ProgramNode;
 import org.klar.core.semantics.TypeChecker;
 import org.klar.core.transpilers.JavaTranspiler;
 
-import picocli.CommandLine.RegexTransformer;
-
 public class MultiCommandsUtils implements Runnable {
 
     private final File file;
@@ -52,7 +50,7 @@ public class MultiCommandsUtils implements Runnable {
         try {
             Path outDir = Path.of("out");
             Path sourceOutDir = outDir.resolve("java");
-            Path classOutDir = outDir.resolve("class");
+            Path classOutDir = sourceOutDir.resolve("class");
             Path cacheDir = outDir.resolve(".cache");
 
             if (clean) {
