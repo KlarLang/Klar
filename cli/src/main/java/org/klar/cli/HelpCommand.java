@@ -44,6 +44,9 @@ public class HelpCommand implements Runnable {
         str.append("    ").append(KcDiagnosticColors.structure("run")).append("              ").append(KcDiagnosticColors.neutral("Transpile, compile and run a Klar program"))
         .append("\n");
 
+        str.append("    ").append(KcDiagnosticColors.structure("clean")).append("            ").append(KcDiagnosticColors.neutral("Cleans the 'out/' output directory of transpiled files"))
+        .append("\n");
+
         str.append("    ").append(KcDiagnosticColors.structure("gen-completion")).append("   ").append(KcDiagnosticColors.neutral("Generate autocomplete script"))
         .append(NEW_LINE);
         
@@ -68,6 +71,9 @@ public class HelpCommand implements Runnable {
         .append("\n");
 
         str.append("    ").append(KcDiagnosticColors.structure("kc ")).append(KcDiagnosticColors.neutral("run ")).append(KcDiagnosticColors.structure("file.k"))
+        .append("\n");
+
+        str.append("    ").append(KcDiagnosticColors.structure("kc ")).append(KcDiagnosticColors.neutral("clean "))
         .append("\n\n");
 
         str.append(KcDiagnosticColors.helpAccent("note:"))
