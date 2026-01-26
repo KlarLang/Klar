@@ -32,7 +32,6 @@ import org.klar.core.parser.ast.VariableExpressionNode;
 import org.klar.core.parser.ast.WhileStatementNode;
 import org.klar.core.Heddle;
 import org.klar.core.diagnostics.DiagnosticCode;
-import org.klar.core.errors.BackendException;
 import org.klar.core.errors.ParserException;
 import org.klar.core.errors.SourceLocation;
 import org.klar.core.errors.SourceManager;
@@ -1040,20 +1039,6 @@ public class Parser {
                     "\"Target\"",
                     "@Use(\"java\")",
                     null);
-
-            String _target = target.getValue().substring(1, target.getValue().length() - 1);
-
-            if (!_target.equals("java")) {
-                throw new BackendException(
-                        DiagnosticCode.E400,
-                        new SourceLocation(filePath.toString(), target.getLine(), Math.max(target.getColumn() - 1, 0)),
-                        sourceManager.getContextLines(target.getLine(), 2),
-                        "Unsupported backend target '" + _target + "'",
-                        "Use a supported backend (currently only 'java' is supported)",
-                        "@Use(\"java\")\npublic void myFunction() { ... }",
-                        "K currently supports only Java as a compilation target.",
-                        target.getValue().length());
-            }
 
             expect(TokenType.RPAREN,
                     DiagnosticCode.E000,

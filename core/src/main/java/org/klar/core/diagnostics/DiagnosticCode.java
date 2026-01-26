@@ -50,7 +50,8 @@ public enum DiagnosticCode {
     E216("ArraySizeMismatch", Phase.SEMANTIC),
     E217("UnresolvedSymbol", Phase.SEMANTIC),
 
-    E400("UnknowBackendTarget", Phase.BACKEND);
+    E400("UnknowBackendTarget", Phase.BACKEND),
+    E401("NotInstalledBackendTarget", Phase.BACKEND);
 
     public final String name;
     public final Phase phase;

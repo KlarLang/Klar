@@ -11,7 +11,6 @@ import org.klar.core.errors.SourceManager;
 import org.klar.core.lexer.Token;
 import org.klar.core.lexer.TokenType;
 import org.klar.core.parser.ast.*;
-import org.klar.core.parser.ast.*;
 
 /**
  * Semantic Analyzer (Type Checker) for Klar.

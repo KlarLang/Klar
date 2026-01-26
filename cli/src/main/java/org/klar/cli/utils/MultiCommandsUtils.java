@@ -6,9 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.klar.cli.error.KcInvalidFileType;
 import org.klar.cli.error.diagnostic.KcDiagnosticCode;
+import org.klar.core.IR.IntentResolution;
 import org.klar.core.errors.KException;
 import org.klar.core.errors.SourceManager;
 import org.klar.core.lexer.Lexer;
@@ -88,14 +90,18 @@ public class MultiCommandsUtils implements Runnable {
                 TypeChecker checker = new TypeChecker(sourceManager, path);
                 checker.check(program);
 
-                // 5. Transpile
+                // 5. Validation
+                IntentResolution iR = new IntentResolution(program, path, sourceManager);
+                iR.validateItent();
+
+                // 6. Transpile
                 JavaTranspiler transpiler = new JavaTranspiler(fileName, sourceManager, path);
                 String javaCode = transpiler.transpile(program);
 
-                // 6. Write output
+                // 7. Write output
                 Files.writeString(outputFile, javaCode);
 
-                // 7. Save hash for next time
+                // 8. Save hash for next time
                 BuildCache.saveHash(path, cacheFile);
 
                 if (caller.equals("build")) {
@@ -171,7 +177,7 @@ public class MultiCommandsUtils implements Runnable {
 
     public static void apagarDiretorio(Path path) throws IOException {
         if (Files.exists(path)) {
-            try (var walk = Files.walk(path)) {
+            try (Stream<Path> walk = Files.walk(path)) {
                 walk.sorted(Comparator.reverseOrder())
                         .forEach(p -> {
                             try {
