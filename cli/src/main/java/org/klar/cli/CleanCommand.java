@@ -3,7 +3,6 @@ package org.klar.cli;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.klar.cli.utils.MultiCommandsUtils;
 import org.klar.core.errors.KException;
 
 import picocli.CommandLine.Command;

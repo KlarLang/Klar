@@ -1,4 +1,4 @@
-package org.klar.cli.utils;
+package org.klar.cli;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.klar.cli.error.KcInvalidFileType;
 import org.klar.cli.error.diagnostic.KcDiagnosticCode;
+import org.klar.cli.utils.BuildCache;
 import org.klar.core.IR.IntentResolution;
 import org.klar.core.errors.KException;
 import org.klar.core.errors.SourceManager;
@@ -92,7 +93,7 @@ public class MultiCommandsUtils implements Runnable {
 
                 // 5. Validation
                 IntentResolution iR = new IntentResolution(program, path, sourceManager);
-                iR.validateItent();
+                iR.validateIntent();
 
                 // 6. Transpile
                 JavaTranspiler transpiler = new JavaTranspiler(fileName, sourceManager, path);

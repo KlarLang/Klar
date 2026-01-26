@@ -5,7 +5,6 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.File;
-import org.klar.cli.utils.MultiCommandsUtils;
 
 @Command(name = "build", description = "Build Klar source to Java")
 public class BuildCommand implements Runnable {

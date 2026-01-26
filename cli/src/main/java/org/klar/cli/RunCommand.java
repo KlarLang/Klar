@@ -6,8 +6,6 @@ import picocli.CommandLine.Parameters;
 
 import java.io.File;
 
-import org.klar.cli.utils.MultiCommandsUtils;
-
 @Command(name = "run", description = "Transpile, compile and run a Klar program")
 public class RunCommand implements Runnable {
 
